@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <?php
 include_once 'layouts/header.php';
 // Nhúng file kết nối database của nhóm
@@ -168,6 +168,3 @@ $quick_icons = [
 </script>
 
 <?php include_once 'layouts/footer.php'; ?>
-=======
-
->>>>>>> 4c11efea8ce14d87660f0c5b40742793d19ba4c5

@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 <?php
 // FILE CẤU HÌNH KẾT NỐI DATABASE (DÙNG CHUNG CHO CẢ NHÓM)
 
@@ -60,6 +60,3 @@ try {
         die("Không thể khởi tạo cơ sở dữ liệu dự phòng: " . $sqlite_e->getMessage());
     }
 }
-=======
-
->>>>>>> 4c11efea8ce14d87660f0c5b40742793d19ba4c5

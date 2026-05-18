@@ -24,54 +24,64 @@
         🔥 ĐÓN HÈ RỰC RỠ - SĂN SALE NGẬP TRÀN GIẢM GIÁ LÊN ĐẾN 50%! 🔥
     </div>
 
-    <nav class="navbar navbar-expand-lg navbar-light sticky-top py-2">
-        <div class="container d-flex align-items-center justify-content-between">
+    <nav class="navbar navbar-expand-lg navbar-light sticky-top bg-white shadow-sm py-2 py-md-3">
+        <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 gap-md-4">
             
-            <div class="d-flex align-items-center gap-4"> 
-                <a class="navbar-brand fw-bold fs-3 mb-0" href="index.php" style="color: #cd1818; line-height: 1;">
-                    Group<span class="text-dark fs-4">Two.com</span>
+            <div class="d-flex align-items-center gap-2 gap-md-3"> 
+                <a class="navbar-brand fw-bold mb-0" href="index.php" style="color: #cd1818; line-height: 1; font-size: 1.5rem; @media (min-width: 768px) { font-size: 1.75rem; }">
+                    Group<span class="text-dark">Two.com</span>
                 </a>
 
-                <div class="dropdown d-none d-lg-block">
+                <div class="dropdown d-none d-md-block">
                     <button class="btn btn-white border-0 btn-category d-flex align-items-center gap-1 p-0" type="button" id="dropdownMenuButton" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class='bx bx-grid-alt fs-3'></i>
-                        <i class='bx bx-chevron-down' style="font-size: 0.8rem;"></i>
+                        <i class='bx bx-grid-alt fs-3 text-secondary'></i>
+                        <i class='bx bx-chevron-down text-muted' style="font-size: 0.8rem;"></i>
                     </button>
-                    <ul class="dropdown-menu mt-3" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item py-2" href="index.php?category=it"><i class='bx bx-code-alt me-2'></i> Sách Công Nghệ</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=economy"><i class='bx bx-trending-up me-2'></i> Sách Kinh Tế</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=skills"><i class='bx bx-bulb me-2'></i> Tâm Lý Kỹ Năng</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=language"><i class='bx bx-world me-2'></i> Góc Ngoại Ngữ</a></li>
+                    <ul class="dropdown-menu mt-3 shadow border-0" aria-labelledby="dropdownMenuButton">
+                        <li><a class="dropdown-item py-2" href="index.php?category=it"><i class='bx bx-code-alt me-2 text-primary'></i> Sách Công Nghệ</a></li>
+                        <li><a class="dropdown-item py-2" href="index.php?category=economy"><i class='bx bx-trending-up me-2 text-success'></i> Sách Kinh Tế</a></li>
+                        <li><a class="dropdown-item py-2" href="index.php?category=skills"><i class='bx bx-bulb me-2 text-warning'></i> Tâm Lý Kỹ Năng</a></li>
+                        <li><a class="dropdown-item py-2" href="index.php?category=language"><i class='bx bx-world me-2 text-info'></i> Góc Ngoại Ngữ</a></li>
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item py-2 text-danger fw-bold" href="index.php">Xem tất cả</a></li>
                     </ul>
                 </div>
             </div>
+
+            <div class="navbar-nav d-flex flex-row align-items-center gap-3 gap-md-4 flex-shrink-0 order-md-3">
+                <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="#" style="transition: color 0.2s;">
+                    <i class='bx bx-bell fs-2 fs-md-3 d-block'></i>
+                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Thông Báo</span>
+                </a>
+                <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="cart.php" style="transition: color 0.2s;">
+                    <i class='bx bx-shopping-bag fs-2 fs-md-3 d-block'></i>
+                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Giỏ hàng</span>
+                </a>
+                <a class="nav-link text-secondary text-center px-1 py-0" href="login.php" style="transition: color 0.2s;">
+                    <i class='bx bx-user fs-2 fs-md-3 d-block'></i>
+                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Tài khoản</span>
+                </a>
+            </div>
             
-            <form class="d-flex search-box mx-4 flex-grow-1" action="index.php" method="GET" style="max-width: 550px;">
+            <form class="search-box w-100 flex-grow-1 mb-0 order-md-2 mt-2 mt-md-0" action="index.php" method="GET" style="max-width: 650px;">
                 <div class="input-group">
-                    <input class="form-control rounded-start-pill px-4 border-2" type="search" name="search" placeholder="Tìm kiếm sản phẩm mong muốn..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="border-color: #cd1818; height: 40px;">
+                    <input class="form-control rounded-start-pill px-3 px-md-4 border-2" type="search" name="search" placeholder="Tìm kiếm sản phẩm mong muốn..." value="<?php echo isset($_GET['search']) ? htmlspecialchars($_GET['search']) : ''; ?>" style="border-color: #cd1818; height: 42px; font-size: 0.95rem; box-shadow: none;">
                     
-                    <button class="btn text-white rounded-end-pill px-4 d-flex align-items-center justify-content-center" type="submit" style="background-color: #cd1818; height: 40px; min-width: 60px;">
+                    <button class="btn text-white rounded-end-pill px-3 px-md-4 d-flex align-items-center justify-content-center" type="submit" style="background-color: #cd1818; height: 42px; min-width: 55px; border: 2px solid #cd1818;">
                         <i class='bx bx-search fs-4' style="line-height: 1;"></i>
                     </button>
                 </div>
             </form>
 
-            <div class="navbar-nav align-items-center flex-row gap-3">
-                <a class="nav-link text-secondary position-relative text-center px-1 py-0" href="#">
-                    <i class='bx bx-bell fs-4 d-block'></i>
-                    <span class="small d-none d-md-inline" style="font-size: 0.75rem;">Thông Báo</span>
-                </a>
-                <a class="nav-link text-secondary position-relative text-center px-1 py-0" href="cart.php">
-                    <i class='bx bx-shopping-bag fs-4 d-block'></i>
-                    <span class="small d-none d-md-inline" style="font-size: 0.75rem;">Giỏ hàng</span>
-                </a>
-                <a class="nav-link text-secondary text-center px-1 py-0" href="login.php">
-                    <i class='bx bx-user fs-4 d-block'></i>
-                    <span class="small d-none d-md-inline" style="font-size: 0.75rem;">Tài khoản</span>
-                </a>
-            </div>
-
         </div>
     </nav>
+
+    <style>
+        .nav-link:hover i, .nav-link:hover span {
+            color: #cd1818 !important;
+        }
+        .form-control:focus {
+            border-color: #cd1818 !important;
+            background-color: #fffdfd;
+        }
+    </style>
