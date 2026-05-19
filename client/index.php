@@ -1,7 +1,7 @@
 
 <?php
 include_once 'layouts/header.php';
-// Nhúng file kết nối database của nhóm
+// kết nối database
 include_once '../config/config.db'; 
 
 // Từ khóa và danh mục

@@ -18,12 +18,12 @@ if (!$book) {
 ?>
 
 <div class="container my-5">
-    <nav aria-label="breadcrumb">
+    <!-- <nav aria-label="breadcrumb">
         <ol class="breadcrumb bg-transparent p-0">
             <li class="breadcrumb-item"><a href="index.php" class="text-decoration-none text-muted">Trang chủ</a></li>
             <li class="breadcrumb-item text-capitalize active" aria-current="page"><?php echo $book['category']; ?></li>
         </ol>
-    </nav>
+    </nav> -->
 
     <div class="row bg-white p-4 rounded-3 shadow-sm g-4">
         <div class="col-md-5 text-center border-end">
