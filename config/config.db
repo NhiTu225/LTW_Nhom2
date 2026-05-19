@@ -35,12 +35,12 @@ try {
             is_flashsale INTEGER DEFAULT 0
         )");
 
-        // Tự động bơm dữ liệu mẫu chuẩn Fahasa nếu bảng trống
+        // Tự động bơm dữ liệu mẫu chuẩn nếu bảng trống
         $check = $pdo->query("SELECT COUNT(*) FROM books")->fetchColumn();
         if ($check == 0) {
             $mock_books = [
                 ['Sự Mệnh Hail Mary - Project Hail Mary', 125400, 300000, 'Hail+Mary', '40%', 'it', 1],
-                ['Linh Tính Và Lý Trí - Các Tiểu Luận Phê Bình', 77000, 110000, 'Linh+Tinh', '30%', 'skills', 1],
+                ['Linh Tính Và Lý Trí - Các Tiểu Luận Phê Bình', 77000, 110000, 'linh_tinh-li_tri-cac_tieu_luan_pb.png', '30%', 'skills', 1],
                 ['Không Gia Đình - Nobody\'s Boy - Tập 1', 67000, 85000, 'Khong+Gia+Dinh+1', '21%', 'skills', 1],
                 ['The Wonderful Wizard of Oz - Phù Thủy Xứ Oz', 67000, 148000, 'Wizard+Oz', '55%', 'it', 1],
                 ['Không Gia Đình - Nobody\'s Boy - Tập 2', 67000, 99000, 'Khong+Gia+Dinh+2', '32%', 'skills', 1],

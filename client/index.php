@@ -33,10 +33,10 @@ $flash_books = $stmt_flash->fetchAll(PDO::FETCH_ASSOC);
 // Boxicons
 $quick_icons = [
     ['icon' => 'bx bxs-calendar', 'title' => '15.05', 'color' => '#ff4d4f'],
-    ['icon' => 'bx bxs-coupon', 'title' => 'Ưu Đãi Siêu To', 'color' => '#722ed1'],
+    ['icon' => 'bx bxs-coupon', 'title' => 'Ưu Đãi lớn', 'color' => '#722ed1'],
     ['icon' => 'bx bxs-bolt', 'title' => 'Flash Sale', 'color' => '#fa8c16'],
     ['icon' => 'bx bx-badge-check', 'title' => 'Mã Giảm Giá', 'color' => '#13c2c2'],
-    ['icon' => 'bx bxs-truck', 'title' => 'Fahasa Deli', 'color' => '#eb2f96'],
+    ['icon' => 'bx bxs-truck', 'title' => 'GroupTwo Deli', 'color' => '#eb2f96'],
     ['icon' => 'bx bx-book-open', 'title' => 'Alpha Books', 'color' => '#faad14'],
     ['icon' => 'bx bxs-star', 'title' => 'Sản Phẩm Mới', 'color' => '#52c41a'],
     ['icon' => 'bx bx-store', 'title' => 'Phiên Chợ Đồ Cũ', 'color' => '#1890ff'],
@@ -78,7 +78,7 @@ $quick_icons = [
     </div>
 
     <div class="card border-0 rounded-3 shadow-sm overflow-hidden mb-4">
-        <div class="card-header border-0 text-white d-flex flex-wrap align-items-center justify-content-between py-3" style="background: linear-gradient(90deg, #ff4d4f 0%, #ff7875 100%);">
+        <div class="card-header border-0 text-white d-flex flex-wrap align-items-center justify-content-between py-3" style="background: linear-gradient(90deg, #0047ab 0%, #ff7875 100%);">
             <div class="d-flex align-items-center gap-2">
                 <h3 class="fw-bold text-uppercase mb-0 fs-4 text-warning" style="font-style: italic;">⚡ Flash Sale</h3>
                 <div class="d-flex align-items-center gap-1 ms-3" id="countdown-box">
@@ -92,20 +92,28 @@ $quick_icons = [
             <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3">
                 <?php foreach ($flash_books as $book): ?>
                     <div class="col">
-                        <div class="card h-100 border-light position-relative card-hover shadow-2xs p-2">
-                            <span class="position-absolute top-0 start-0 badge bg-danger m-2">-<?php echo $book['sale']; ?></span>
-                            <div class="text-center py-2"><img src="../public/images/<?php echo $book['image']; ?>" class="img-fluid rounded" style="max-height: 140px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=GroupTwo'"></div>
-                            <div class="card-body p-1 d-flex flex-column justify-content-between">
-                                <h6 class="card-title text-dark small mb-1 text-truncate-2"><?php echo $book['title']; ?></h6>
-                                <div>
-                                    <div class="mb-2"><span class="text-danger fw-bold"><?php echo number_format($book['price']); ?> đ</span></div>
-                                    <div class="progress rounded-pill style-progress" style="height: 14px; position: relative;">
-                                        <div class="progress-bar bg-danger w-75" role="progressbar"></div>
-                                        <small class="w-100 text-center text-white position-absolute" style="font-size: 0.65rem; line-height: 14px; left: 0;">Sắp cháy hàng</small>
+                        <a href="detail.php?id=<?php echo $book['id']; ?>" class="text-decoration-none text-dark d-block h-100">
+                            <div class="card h-100 border-light position-relative card-hover shadow-2xs p-2">
+                                <span class="position-absolute top-0 start-0 badge bg-danger m-2">-<?php echo $book['sale']; ?></span>
+                                
+                                <div class="text-center py-2">
+                                    <img src="../public/images/<?php echo $book['image']; ?>" class="img-fluid rounded" style="max-height: 140px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=GroupTwo'">
+                                </div>
+                                
+                                <div class="card-body p-1 d-flex flex-column justify-content-between">
+                                    <h6 class="card-title text-dark small mb-1 text-truncate-2" style="line-height: 1.4;"><?php echo $book['title']; ?></h6>
+                                    <div>
+                                        <div class="mb-2">
+                                            <span class="text-danger fw-bold"><?php echo number_format($book['price']); ?> đ</span>
+                                        </div>
+                                        <div class="progress rounded-pill style-progress" style="height: 14px; position: relative;">
+                                            <div class="progress-bar bg-danger w-75" role="progressbar"></div>
+                                            <small class="w-100 text-center text-white position-absolute" style="font-size: 0.65rem; line-height: 14px; left: 0;">Sắp cháy hàng</small>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </div>
@@ -130,22 +138,26 @@ $quick_icons = [
             <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
                 <?php foreach ($filtered_books as $book): ?>
                     <div class="col">
-                        <div class="card h-100 card-hover border-light position-relative shadow-2xs rounded-3 p-2">
-                            <span class="position-absolute top-0 start-0 badge bg-danger m-2">-<?php echo $book['sale']; ?></span>
-                            <div class="text-center py-3">
-                                <img src="../public/images/<?php echo $book['image']; ?>" class="img-fluid rounded" style="max-height: 160px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=GroupTwo'">
-                            </div>
-                            <div class="card-body p-1 d-flex flex-column justify-content-between">
-                                <h6 class="card-title text-dark fw-semibold small mb-2 text-truncate-2"><?php echo $book['title']; ?></h6>
-                                <div>
-                                    <p class="card-text mb-2">
-                                        <span class="text-danger fw-bold d-block"><?php echo number_format($book['price']); ?> đ</span>
-                                        <span class="text-muted text-decoration-line-through x-small" style="font-size: 0.75rem;"><?php echo number_format($book['old_price']); ?> đ</span>
-                                    </p>
-                                    <a href="detail.php?id=<?php echo $book['id']; ?>" class="btn w-100 text-white rounded-2 btn-sm fw-bold" style="background-color: #cd1818;">Xem chi tiết</a>
+                        <a href="detail.php?id=<?php echo $book['id']; ?>" class="text-decoration-none text-dark d-block h-100">
+                            <div class="card h-100 card-hover border-light position-relative shadow-2xs rounded-3 p-2">
+                                <span class="position-absolute top-0 start-0 badge bg-danger m-2">-<?php echo $book['sale']; ?></span>
+                                
+                                <div class="text-center py-3">
+                                    <img src="../public/images/<?php echo $book['image']; ?>" class="img-fluid rounded" style="max-height: 160px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=GroupTwo'">
+                                </div>
+                                
+                                <div class="card-body p-1 d-flex flex-column justify-content-between">
+                                    <h6 class="card-title text-dark fw-semibold small mb-2 text-truncate-2" style="line-height: 1.4;"><?php echo $book['title']; ?></h6>
+                                    <div>
+                                        <p class="card-text mb-2">
+                                            <span class="text-danger fw-bold d-block"><?php echo number_format($book['price']); ?> đ</span>
+                                            <span class="text-muted text-decoration-line-through x-small" style="font-size: 0.75rem;"><?php echo number_format($book['old_price']); ?> đ</span>
+                                        </p>
+                                        <div class="btn w-100 text-white rounded-2 btn-sm fw-bold" style="background-color: #cd1818;">Xem chi tiết</div>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
+                        </a>
                     </div>
                 <?php endforeach; ?>
             </div>
