@@ -8,7 +8,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-    <link rel="icon" type="image/png" href="../public/images/2.png">
+    <link rel="icon" type="image/png" href="../../public/images/2.png">
     <style>
         .search-box { max-width: 600px; width: 100%; }
         .navbar { border-bottom: 1px solid #ebebeb; background-color: #fff !important; }
@@ -59,7 +59,7 @@
                     <i class='bx bx-shopping-bag fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Giỏ hàng</span>
                 </a>
-                <a class="nav-link text-secondary text-center px-1 py-0" href="login.php" style="transition: color 0.2s;">
+                <a class="nav-link text-secondary text-center px-1 py-0" href="../auth/login.php" style="transition: color 0.2s;">
                     <i class='bx bx-user fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Tài khoản</span>
                 </a>

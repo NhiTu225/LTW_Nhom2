@@ -1,159 +1,170 @@
+<?php
+// 1. Khởi động Session và cấu hình bật lỗi để dễ kiểm soát
+session_start();
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
+// 🔒 CHỐT CHẶN BẢO MẬT (Bạn có thể bỏ comment nếu hệ thống đã có tính năng login)
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    header("Location: ../client/index.php");
+    exit();
+}
+
+// 2. Kết nối Database (Tìm file db.php nằm trong thư mục config)
+if (file_exists('../config/db.php')) {
+    include_once '../config/db.php';
+}
+
+// 3. Đọc tham số điều hướng (?page=...). Mặc định không truyền gì là 'dashboard'
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+
+// Lấy thông tin tài khoản hiển thị lên góc phải
+$admin_fullname = isset($_SESSION['fullname']) ? $_SESSION['fullname'] : 'Admin User';
+$admin_email = isset($_SESSION['email']) ? $_SESSION['email'] : 'admin@bookstore.com';
+$avatar_letter = mb_substr($admin_fullname, 0, 1, 'utf-8');
+?>
+
 <!doctype html>
 <html lang="vi">
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Dashboard - BookStore Admin</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Hệ Thống Quản Trị - BookStore</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+      :root { --sb-bg: #1e2640; --sb-hover: #2d3758; --body-bg: #f4f6f9; }
+      body { background-color: var(--body-bg); font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; overflow-x: hidden; }
+      
+      /* Sidebar Layout cố định */
+      .sidebar { height: 100vh; background: var(--sb-bg); color: #fff; width: 260px; position: fixed; top: 0; left: 0; z-index: 1000; padding: 1.5rem; box-shadow: 4px 0 10px rgba(0,0,0,0.05); }
+      .sidebar .nav-link { color: rgba(255,255,255,0.7); padding: 0.85rem 1.2rem; border-radius: 0.5rem; margin: 0.2rem 0; font-weight: 500; text-decoration: none; display: block; transition: all 0.2s ease; }
+      .sidebar .nav-link:hover, .sidebar .nav-link.active { background: #0d6efd; color: #fff; }
+      
+      /* Vùng chứa nội dung chính bên phải Sidebar */
+      .main-content { margin-left: 260px; min-height: 100vh; padding: 1.5rem 2rem; }
+      .panel-box { border: none; border-radius: 1rem; box-shadow: 0 4px 16px rgba(0,0,0,0.02); background: #fff; padding: 1.5rem; }
+    </style>
   </head>
   <body>
-    <aside class="sidebar">
-      <div class="brand">
-        <div class="brand-icon">📚</div><b>BookStore Admin</b>
+
+    <div class="d-flex">
+      <aside class="sidebar d-flex flex-column justify-content-between">
+        <div>
+          <div class="d-flex align-items-center gap-3 mb-4 pb-2 px-1">
+            <div class="bg-primary text-white rounded p-2 d-flex align-items-center justify-content-center" style="width:38px; height:38px;">
+              <i class="fa-solid fa-book-open fs-5"></i>
+            </div>
+            <span class="fs-5 fw-bold text-white">BookStore Admin</span>
+          </div>
+          <hr class="text-secondary opacity-25">
+          <nav class="nav flex-column mt-3">
+            <a class="nav-link <?= $page == 'dashboard' ? 'active' : '' ?>" href="index.php?page=dashboard"><i class="fa-solid fa-chart-pie me-3"></i>Dashboard</a>
+            <a class="nav-link <?= $page == 'book-list' || $page == 'book-add' || $page == 'book-edit' ? 'active' : '' ?>" href="index.php?page=book-list"><i class="fa-solid fa-book me-3"></i>Quản Lý Sách</a>
+            <a class="nav-link <?= $page == 'category-list' ? 'active' : '' ?>" href="index.php?page=category-list"><i class="fa-solid fa-layer-group me-3"></i>Danh Mục</a>
+            <a class="nav-link <?= $page == 'user-list' ? 'active' : '' ?>" href="index.php?page=user-list"><i class="fa-solid fa-users me-3"></i>Quản Lý KH</a>
+            <a class="nav-link <?= $page == 'order-list' ? 'active' : '' ?>" href="index.php?page=order-list"><i class="fa-solid fa-file-invoice-dollar me-3"></i>Quản Lý Đơn Hàng</a>
+          </nav>
+        </div>
+
+        <div class="mt-auto mb-3">
+
+            <hr class="text-secondary opacity-25 my-3">
+            <a href="modules/logout.php" 
+               class="nav-link d-flex align-items-center gap-3 py-2 px-3 rounded-3" 
+               style="text-decoration: none; color: #ff4d4d !important; font-weight: 700 !important; font-size: 0.95rem; transition: all 0.2s ease-in-out;"
+               onmouseover="this.style.backgroundColor='rgba(243, 24, 24, 0.3)'; this.style.color='#fff !important'"
+               onmouseout="this.style.backgroundColor='transparent'; this.style.color='#ff4d4d !important'"
+               onclick="return confirm('Bạn có chắc chắn muốn đăng xuất khỏi hệ thống không?')">
+                <i class="fa-solid fa-right-from-bracket fs-5"></i> <span>Đăng xuất</span>
+            </a>
+        </div>
+
+        <div class="text-secondary small px-1" style="font-size: 0.75rem; opacity: 0.6;">Phiên bản v1.0</div>
+      </aside>
+
+      <div class="main-content flex-grow-1"> 
+
+        <header class="d-flex justify-content-between align-items-center bg-white p-3 rounded-4 shadow-sm mb-4">
+          <h5 class="fw-bold text-dark m-0 d-none d-lg-block">
+             <i class="fa-solid fa-desktop text-primary me-2 small"></i>Hệ Thống Quản Lý Cửa Hàng
+          </h5>
+          <div class="d-flex align-items-center gap-3 ms-auto">
+            <div class="text-end">
+              <p class="m-0 fw-semibold text-dark small"><?= htmlspecialchars($admin_fullname) ?></p>
+              <small class="text-muted d-block" style="font-size: 0.72rem;"><?= htmlspecialchars($admin_email) ?></small>
+            </div>
+            <div class="bg-primary-subtle text-primary rounded-circle d-flex align-items-center justify-content-center fw-bold" style="width: 40px; height: 40px;"><?= htmlspecialchars($avatar_letter) ?></div>
+          </div>
+        </header>
+
+        <?php
+        switch ($page) {
+            case 'dashboard':
+                if (file_exists('view/dashboard.php')) {
+                    include_once 'view/dashboard.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/dashboard.php để chứa giao diện Thống kê.</div>";
+                }
+                break;
+                
+            case 'book-list':
+                if (file_exists('view/book-list.php')) {
+                    include_once 'view/book-list.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/book-list.php để chứa giao diện Bảng danh sách sách.</div>";
+                }
+                break;
+                
+            case 'book-add':
+                if (file_exists('view/book-add.php')) {
+                    include_once 'view/book-add.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/book-add.php để chứa giao diện Form thêm sách.</div>";
+                }
+                break;
+                
+            case 'book-edit':
+                if (file_exists('view/book-edit.php')) {
+                    include_once 'view/book-edit.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/book-edit.php để chứa giao diện Form sửa sách.</div>";
+                }
+                break;
+
+            case 'category-list':
+                if (file_exists('view/category-list.php')) {
+                    include_once 'view/category-list.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/category-list.php để chứa giao diện Quản lý danh mục.</div>";
+                }
+                break;
+
+            case 'user-list':
+                if (file_exists('view/user-list.php')) {
+                    include_once 'view/user-list.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/user-list.php để chứa giao diện Quản lý khách hàng.</div>";
+                }
+                break;
+
+            case 'order-list':
+                if (file_exists('view/order-list.php')) {
+                    include_once 'view/order-list.php';
+                } else {
+                    echo "<div class='alert alert-warning'>Vui lòng tạo file view/order-list.php để chứa giao diện Quản lý đơn hàng.</div>";
+                }
+                break;
+
+            default:
+                echo "<div class='alert alert-danger'>Trang không tồn tại hoặc tính năng đang phát triển!</div>";
+                break;
+        }
+        ?>
       </div>
-      <nav>
-        <a class="nav-item active" href="/">
-          <span>📊</span><span>Dashboard</span>
-        </a>
-        <a class="nav-item " href="/view/books.php">
-          <span>📚</span><span>Quản lý sách</span>
-        </a>
-        <a class="nav-item " href="/view/categories.php">
-          <span>📁</span><span>Danh mục</span>
-        </a>
-      </nav>
-      <div class="version"><b>Phiên bản</b><small>Admin v1.0</small></div>
-    </aside>
-    <header class="topbar">
-      <div class="search">🔎<input placeholder="Tìm kiếm sách, đơn hàng, khách hàng..."></div>
-      <div class="account"><button class="bell">🔔<span></span></button>
-        <div class="admin">
-          <p>Admin User</p><small>admin@bookstore.com</small>
-        </div>
-        <div class="avatar">👤</div>
-      </div>
-    </header>
-    <main class="main">
-      <section class="page-title">
-        <h1>Dashboard</h1>
-        <p>Tổng quan hoạt động kinh doanh</p>
-      </section>
-      <div class="grid cards">
-        <div class="stat">
-          <div>
-            <p>Tổng doanh thu</p> 
-            <h2><?= htmlspecialchars($user['name']) ?> ₫</h2><span class="trend">↗ +12.5% <small>so với tháng trước</small></span>
-          </div>
-          <div class="stat-icon">💰</div>
-        </div>
-        <div class="stat">
-          <div>
-            <p>Số đơn hàng</p>
-            <h2><?= htmlspecialchars($don_hang['don_hang']) ?></h2><span class="trend">↗ +8.2% <small>so với tháng trước</small></span>
-          </div>
-          <div class="stat-icon">📦</div>
-        </div>
-        <div class="stat">
-          <div>
-            <p>Số sách đang bán</p>
-            <h2><?= htmlspecialchars($sach['sach']) ?></h2><span class="trend">↗ +15 <small>so với tháng trước</small></span>
-          </div>
-          <div class="stat-icon">📚</div>
-        </div>
-        <div class="stat">
-          <div>
-            <p>Số khách hàng</p>
-            <h2><?= htmlspecialchars($khach_hang['khach_hang']) ?></h2><span class="trend">↗ +23.1% <small>so với tháng trước</small></span>
-          </div>
-          <div class="stat-icon">👥</div>
-        </div>
-      </div>
-      <div class="grid two">
-        <div class="panel">
-          <h2>Doanh thu theo tháng</h2>
-          <div class="chart-bars">
-            <div class="bar" style="height:48%"><span><?= htmlspecialchars($doanh_thu['T1']) ?></span><small>T1</small></div>
-            <div class="bar" style="height:58%"><span><?= htmlspecialchars($doanh_thu['T2']) ?></span><small>T2</small></div>
-            <div class="bar" style="height:52%"><span><?= htmlspecialchars($doanh_thu['T3']) ?></span><small>T3</small></div>
-            <div class="bar" style="height:67%"><span><?= htmlspecialchars($doanh_thu['T4']) ?></span><small>T4</small></div>
-            <div class="bar" style="height:76%"><span><?= htmlspecialchars($doanh_thu['T5']) ?></span><small>T5</small></div>
-            <div class="bar" style="height:82%"><span><?= htmlspecialchars($doanh_thu['T6']) ?></span><small>T6</small></div>
-            <div class="bar" style="height:72%"><span><?= htmlspecialchars($doanh_thu['T7']) ?></span><small>T7</small></div>
-            <div class="bar" style="height:78%"><span><?= htmlspecialchars($doanh_thu['T8']) ?></span><small>T8</small></div>
-            <div class="bar" style="height:87%"><span><?= htmlspecialchars($doanh_thu['T9']) ?></span><small>T9</small></div>
-            <div class="bar" style="height:93%"><span><?= htmlspecialchars($doanh_thu['T10']) ?></span><small>T10</small></div>
-            <div class="bar" style="height:85%"><span><?= htmlspecialchars($doanh_thu['T11']) ?></span><small>T11</small></div>
-            <div class="bar" style="height:100%"><span><?= htmlspecialchars($doanh_thu['T12']) ?></span><small>T12</small></div>
-          </div>
-        </div>
-        <div class="panel">
-          <h2>Trạng thái đơn hàng</h2>
-          <div class="donut">
-            <div><b><?= htmlspecialchars($don_hang['don_hang']) ?></b><small>đơn hàng</small></div>
-          </div>
-          <ul class="legend">
-            <li><span class="c-yellow"></span>Chờ xác nhận: 45</li>
-            <li><span class="c-blue"></span>Đang xử lý: 82</li>
-            <li><span class="c-purple"></span>Đang giao: 128</li>
-            <li><span class="c-green"></span>Đã hoàn thành: 956</li>
-            <li><span class="c-red"></span>Đã hủy: 37</li>
-          </ul>
-        </div>
-      </div>
-      <div class="grid two">
-        <div class="panel no-pad">
-          <div class="panel-head">
-            <h2>Đơn hàng mới nhất</h2>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mã đơn</th>
-                  <th>Khách hàng</th>
-                  <th>Tổng tiền</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>DH001</td>
-                  <td>Nguyễn Văn A</td>
-                  <td>450.000 ₫</td>
-                  <td><span class="badge completed">Đã hoàn thành</span></td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-        <div class="panel no-pad">
-          <div class="panel-head">
-            <h2>Top sách bán chạy</h2>
-          </div>
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Tên sách</th>
-                  <th>Tác giả</th>
-                  <th>Đã bán</th>
-                  <th>Doanh thu</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1</td>
-                  <td>Đắc Nhân Tâm</td>
-                  <td>Dale Carnegie</td>
-                  <td>342</td>
-                  <td>61.560.000 ₫</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    </main>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   </body>
-</html>a
+</html>

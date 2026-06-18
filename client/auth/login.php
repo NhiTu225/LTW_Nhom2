@@ -1,47 +1,62 @@
 <?php
-error_reporting(E_ALL);
-ini_set('display_errors', 1);
-
 session_start();
 
-require_once __DIR__ . "config DATABASE HERE";
-$conn = $pdo;
-
-$message = "";
-
-if ($_SERVER["REQUEST_METHOD"] === "POST") {
-    $email = trim($_POST["email"]);
-    $password = $_POST["password"];
-
-    if (empty($email) || empty($password)) {
-        $message = "Vui lòng nhập email và mật khẩu";
+// 1. Kiểm tra nếu người dùng ĐÃ ĐĂNG NHẬP RỒI thì tự động điều hướng đi, không cho ở lại trang login nữa
+if (isset($_SESSION['role'])) {
+    if ($_SESSION['role'] === 'admin') {
+        header("Location: ../../admin/index.php");
+        exit();
     } else {
-        $sql = "SELECT * FROM account WHERE email = :email LIMIT 1";
-        $stmt = $conn->prepare($sql);
-
-        $stmt->execute([
-            ":email" => $email
-        ]);
-
-        $user = $stmt->fetch(PDO::FETCH_ASSOC);
-
-        if ($user && password_verify($password, $user["password"])) {
-            $_SESSION["user_id"] = $user["id_acc"];
-            $_SESSION["username"] = $user["username"];
-            $_SESSION["email"] = $user["email"];
-            $_SESSION["role"] = $user["role"];
-
-            if ($user["role"] === "admin") {
-                header("Location: ../admin/dashboard.php");
-                exit;
-            } else {
-                header("Location: ../index.php");
-                exit;
-            }
-        } else {
-            $message = "Email hoặc mật khẩu không đúng";
-        }
+        header("Location: ../index.php");
+        exit();
     }
 }
-?>
 
+// 2. Lấy thông tin báo lỗi từ Session nếu có (do login_action.php bắn về)
+$error_msg = '';
+if (isset($_SESSION['error'])) {
+    $error_msg = $_SESSION['error'];
+    unset($_SESSION['error']); // In ra xong thì xóa ngay để lần sau F5 không bị dính lại
+}
+?>
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Đăng nhập</title>
+</head>
+<body>
+
+<h2>Đăng nhập</h2>
+
+<?php if (!empty($error_msg)): ?>
+    <p style="color:red; font-weight: bold;">
+        <?php echo $error_msg; ?>
+    </p>
+<?php endif; ?>
+
+<form action="login_action.php" method="POST">
+    <div>
+        <label>Tên đăng nhập (hoặc Email)</label><br>
+        <input type="text" name="username" required>
+    </div>
+
+    <br>
+
+    <div>
+        <label>Mật khẩu</label><br>
+        <input type="password" name="password" required>
+    </div>
+
+    <br>
+
+    <button type="submit">Đăng nhập</button>
+</form>
+
+<p>
+    Chưa có tài khoản? 
+    <a href="register.php">Đăng ký</a>
+</p>
+
+</body>
+</html>

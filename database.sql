@@ -90,8 +90,6 @@ CREATE TABLE `orders` (
 -- Đang đổ dữ liệu cho bảng `orders`
 --
 
-INSERT INTO `orders` (`id`, `user_id`, `fullname`, `address`, `phone`, `total_amount`, `status`, `created_at`) VALUES
-(3, 1, 'Quang Nguyễn', 'ádasda', '23123124', 200000.00, 'pending', '2026-05-18 11:43:20');
 
 -- --------------------------------------------------------
 
@@ -136,7 +134,10 @@ CREATE TABLE `users` (
 --
 
 INSERT INTO `users` (`id`, `username`, `password`, `fullname`, `email`, `role`, `created_at`) VALUES
-(1, 'admin', '123456', 'Administrator', 'admin@example.com', 'admin', '2026-05-18 11:42:07');
+                    (1, 'admin', '123456', 'Administrator', 'admin@example.com', 'admin', '2026-05-18 11:42:07');
+INSERT INTO `users` (`id`, `username`, `password`, `fullname`, `email`, `role`, `created_at`) VALUES                    
+                    (2, '1', '123', 'user', 'user@xempla.com', 'user', '2026-06-18 11:42:07');
+
 
 --
 -- Chỉ mục cho các bảng đã đổ

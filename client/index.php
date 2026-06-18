@@ -2,7 +2,7 @@
 <?php
 include_once 'layouts/header.php';
 // kết nối database
-include_once '../config/config.db'; 
+include_once '../config/db.php'; 
 
 // Từ khóa và danh mục
 $search_keyword = isset($_GET['search']) ? trim($_GET['search']) : '';
@@ -26,7 +26,7 @@ $stmt->execute($params);
 $filtered_books = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
 // 2. QUERY CHO SẢN PHẨM FLASH SALE 
-$stmt_flash = $pdo->prepare("SELECT * FROM books WHERE is_flashsale = 1 LIMIT 5");
+$stmt_flash = $pdo->prepare("SELECT * FROM books LIMIT 5");
 $stmt_flash->execute();
 $flash_books = $stmt_flash->fetchAll(PDO::FETCH_ASSOC);
 
