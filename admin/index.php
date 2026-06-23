@@ -5,13 +5,13 @@ ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
-// 🔒 CHỐT CHẶN BẢO MẬT (Bạn có thể bỏ comment nếu hệ thống đã có tính năng login)
+
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    header("Location: ../client/index.php");
-    exit();
+    // header("Location: ../client/index.php");
+    // exit();
 }
 
-// 2. Kết nối Database (Tìm file db.php nằm trong thư mục config)
+// 2. Kết nối Database
 if (file_exists('../config/db.php')) {
     include_once '../config/db.php';
 }

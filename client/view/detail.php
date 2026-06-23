@@ -1,6 +1,6 @@
 <?php
-include_once 'layouts/header.php';
-include_once '../config/db.php';
+include_once __DIR__ . '/../layouts/header.php';
+include_once __DIR__ . '/../../config/db.php';
 
 // Lấy ID từ URL
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
@@ -42,7 +42,7 @@ if (!$book) {
                 <span class="text-muted text-decoration-line-through small"><?php echo number_format($book['old_price']); ?> đ</span>
             </div>
 
-            <form action="cart.php" method="POST" class="mb-4">
+            <form action="view/cart-action.php?action=add&id=<?= $book['id'] ?>" method="POST" class="mb-4">
                 <input type="hidden" name="book_id" value="<?php echo $book['id']; ?>">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <span class="fw-medium text-secondary">Số lượng:</span>
@@ -71,5 +71,6 @@ if (!$book) {
         </div>
     </div>
 </div>
+
 
 <?php include_once 'layouts/footer.php'; ?>

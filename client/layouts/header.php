@@ -55,14 +55,72 @@
                     <i class='bx bx-bell fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Thông Báo</span>
                 </a>
-                <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="cart.php" style="transition: color 0.2s;">
+                <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="index.php?page=cart" style="transition: color 0.2s;">
                     <i class='bx bx-shopping-bag fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Giỏ hàng</span>
                 </a>
-                <a class="nav-link text-secondary text-center px-1 py-0" href="../auth/login.php" style="transition: color 0.2s;">
+                <!-- <a class="nav-link text-secondary text-center px-1 py-0" href="index.php?page=profile" style="transition: color 0.2s;">
                     <i class='bx bx-user fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Tài khoản</span>
-                </a>
+                </a> -->
+                <div class="dropdown">
+                <?php if (isset($_SESSION['user'])): ?>
+                    <a href="#" class="text-decoration-none text-dark d-flex flex-column align-items-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class='bx bx-user-check fs-4 text-success'></i>
+                        <span class="small d-block text-truncate" style="max-width: 90px;">
+                            <?= htmlspecialchars($_SESSION['user']['fullname'] ?? $_SESSION['user']['username']) ?>
+                        </span>
+                    </a>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="z-index: 9999;">
+                        <li>
+                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="index.php?page=profile">
+                                <i class='bx bx-id-card align-middle me-2 text-primary'></i> Thông tin cá nhân
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="index.php?page=my-orders">
+                                <i class='bx bx-package align-middle me-2 text-warning'></i> Đơn hàng của tôi
+                            </a>
+                        </li>
+                        
+                        <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
+                            <li><hr class="dropdown-divider"></li>
+                            <li>
+                                <a class="dropdown-item p-2 small text-decoration-none px-3 text-danger fw-bold" href="../admin/index.php">
+                                    <i class='bx bx-shield-quarter align-middle me-2'></i> Trang quản trị (Admin)
+                                </a>
+                            </li>
+                        <?php endif; ?>
+                        
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-secondary" href="auth/logout.php">
+                                <i class='bx bx-log-out align-middle me-2 text-danger'></i> Đăng xuất
+                            </a>
+                        </li>
+                    </ul>
+
+                <?php else: ?>
+                    <a href="#" class="text-decoration-none text-dark d-flex flex-column align-items-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class='bx bx-user fs-4'></i>
+                        <span class="small d-block">Tài khoản</span>
+                    </a>
+                    
+                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="z-index: 9999;">
+                        <li>
+                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark fw-bold" href="auth/login.php">
+                                <i class='bx bx-log-in align-middle me-2 text-success'></i> Đăng nhập
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="auth/register.php">
+                                <i class='bx bx-user-plus align-middle me-2 text-info'></i> Đăng ký tài khoản
+                            </a>
+                        </li>
+                    </ul>
+                <?php endif; ?>
+            </div>
             </div>
             
             <form class="search-box w-100 flex-grow-1 mb-0 order-md-2 mt-2 mt-md-0" action="index.php" method="GET" style="max-width: 650px;">
