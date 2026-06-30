@@ -63,7 +63,7 @@ $total_money = 0;
                                             </td>
                                             <td class="text-center">
                                                 <!-- Nút xóa sản phẩm gọi trực tiếp hành động delete -->
-                                                <a href="view/cart-action.php?action=delete&id=<?= $id ?>" class="text-secondary hover-danger fs-5">
+                                                <a href="view/cart-action.php?action=delete&id=<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger">Xóa
                                                     <i class='bx bx-trash'></i>
                                                 </a>
                                             </td>

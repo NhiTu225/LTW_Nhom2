@@ -1,14 +1,13 @@
 <?php
 session_start();
-// Nhúng file kết nối database từ thư mục config
+
 if (file_exists('../../config/db.php')) {
     require_once '../../config/db.php';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $username = trim($_POST['username'] ?? '');
-    $password = trim($_POST['password'] ?? ''); // Giả lập chuỗi thô theo DB mẫu, nếu dùng mã hóa hash thì thay bằng password_verify
-
+    $password = trim($_POST['password'] ?? '');
     if (empty($username) || empty($password)) {
         $_SESSION['error'] = "Vui lòng nhập đầy đủ tên đăng nhập và mật khẩu!";
         header("Location: login.php");
@@ -23,18 +22,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
             if ($user) {
-                // Đăng nhập thành công -> Lưu thông tin vào Session
-                $_SESSION['user_id']  = $user['id'];
-                $_SESSION['username'] = $user['username'];
-                $_SESSION['fullname'] = $user['fullname'];
-                $_SESSION['email']    = $user['email'];
-                $_SESSION['role']     = $user['role']; // Giá trị 'admin' hoặc 'user'
+                // Đăng nhập thành công -> Lưu nguyên mảng $user vào $_SESSION['user'] cho đồng bộ với Header
+                $_SESSION['user'] = [
+                    'id'       => $user['id'],
+                    'username' => $user['username'],
+                    'fullname' => $user['fullname'],
+                    'email'    => $user['email'],
+                    'role'     => $user['role'] // 'admin' hoặc 'user'
+                ];
 
-                // Kiểm tra vai trò để điều hướng (Routing) nhàn hạ
-                if ($_SESSION['role'] === 'admin') {
-                    header("Location: ../../admin/index.php"); // Nhảy vào trang quản trị
+                // Kiểm tra vai trò để điều hướng (Routing)
+                if ($_SESSION['user']['role'] === 'admin') {
+                    header("Location: ../../admin/index.php");
                 } else {
-                    header("Location: ../index.php"); // Nhảy vào trang chủ bán hàng
+                    header("Location: ../index.php");
                 }
                 exit();
             } else {

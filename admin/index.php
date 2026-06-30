@@ -1,15 +1,25 @@
 <?php
-// 1. Khởi động Session và cấu hình bật lỗi để dễ kiểm soát
+session_set_cookie_params([
+    'path' => '/',
+    'httponly' => true
+]);
+
 session_start();
+
+
+if (!isset($_SESSION['user']) || !isset($_SESSION['user']['role']) || $_SESSION['user']['role'] !== 'admin') {
+    echo "<script>window.location.href='../client/index.php';</script>";
+    exit();
+}
+
+
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    // header("Location: ../client/index.php");
-    // exit();
-}
+
+
 
 // 2. Kết nối Database
 if (file_exists('../config/db.php')) {
@@ -132,6 +142,17 @@ $avatar_letter = mb_substr($admin_fullname, 0, 1, 'utf-8');
                     echo "<div class='alert alert-warning'>Vui lòng tạo file view/book-edit.php để chứa giao diện Form sửa sách.</div>";
                 }
                 break;
+
+
+            case 'book-update':
+                include 'modules/book/update.php';
+                break;
+
+
+            case 'book-create':
+                include 'modules/book/create.php';
+                break;
+
 
             case 'category-list':
                 if (file_exists('view/category-list.php')) {

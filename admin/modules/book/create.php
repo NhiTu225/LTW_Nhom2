@@ -4,11 +4,18 @@ $admin_path = dirname(__DIR__, 2);
 $db_admin = $admin_path . DIRECTORY_SEPARATOR . 'db.php';
 $db_config = dirname($admin_path) . DIRECTORY_SEPARATOR . 'config' . DIRECTORY_SEPARATOR . 'db.php';
 
+
 if (file_exists($db_admin)) {
     include_once $db_admin;
 } else if (file_exists($db_config)) {
     include_once $db_config;
 }
+
+
+// if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+//     echo "<script>window.location.href='../client/index.php';</script>";
+//     exit();
+// }
 
 // Kiểm tra sự tồn tại của biến $pdo từ file db.php của bạn
 if (!isset($pdo)) {
@@ -48,5 +55,5 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 }
 
 // 5. Điều hướng mượt mà quay lại trang danh sách
-header("Location: ../../index.php?page=book-list");
+echo "<script>window.location.href='index.php?page=book-list';</script>";
 exit();

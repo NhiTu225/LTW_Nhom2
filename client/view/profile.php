@@ -1,5 +1,6 @@
 <?php
-// Lấy thông tin user hiện tại từ Session
+// include_once '../../config/db.php';
+
 $user = $_SESSION['user'];
 ?>
 
@@ -96,6 +97,7 @@ $user = $_SESSION['user'];
                                 <i class='bx bx-user'></i>
                             </div>
                         </div>
+                        <!-- <input type="file"> -->
                         <button class="btn btn-sm btn-outline-secondary px-3" style="border-radius: 4px;" disabled>Chọn ảnh</button>
                         <div class="text-muted small mt-2" style="font-size: 0.75rem;">
                             Dụng lượng file tối đa 1 MB<br>Định dạng: .JPEG, .PNG

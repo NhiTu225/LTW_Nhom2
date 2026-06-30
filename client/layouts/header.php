@@ -18,6 +18,73 @@
         .text-truncate-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; height: 36px; }
         .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
         .card-hover:hover { transform: translateY(-3px); box-shadow: 0 4px 12px rgba(0,0,0,0.08)!important; }
+
+
+        /* Style cho Badge hiển thị số lượng ở góc trên bên phải của icon giỏ hàng */
+        .cart-icon-wrapper {
+            position: relative;
+            display: inline-block;
+        }
+
+        .cart-badge {
+            position: absolute;
+            top: -5px;
+            right: -10px;
+            background-color: #cd1818;
+            color: white;
+            font-size: 0.7rem;
+            font-weight: bold;
+            border-radius: 50%;
+            padding: 2px 6px;
+            min-width: 18px;
+            height: 18px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            transition: transform 0.3s ease;
+        }
+
+        /* Hiệu ứng nảy nhẹ khi số lượng thay đổi */
+        .cart-badge.bump {
+            transform: scale(1.3);
+        }
+
+        /* Style cho viên tròn bay hiệu ứng */
+        .flying-dot {
+            position: fixed;
+            width: 20px;
+            height: 20px;
+            background-color: #cd1818;
+            border-radius: 50%;
+            z-index: 9999;
+            pointer-events: none; /* Không cản trở người dùng click cái khác */
+            transition: all 0.8s cubic-bezier(0.25, 1, 0.5, 1); /* Đường cong di chuyển mượt mà */
+        }
+        /* CSS Định hình quả cầu bay đỏ */
+        .flying-dot {
+            position: fixed;
+            width: 18px;
+            height: 18px;
+            background-color: #cd1818;
+            border-radius: 50%;
+            z-index: 99999;
+            pointer-events: none;
+            transition: left 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
+                        top 0.8s cubic-bezier(0.25, 1, 0.5, 1), 
+                        transform 0.8s ease, 
+                        opacity 0.8s ease;
+        }
+
+        /* Hiệu ứng nảy số lượng khi nhận hàng thành công */
+        @keyframes bumpEffect {
+            0% { transform: translate(0, 0) scale(1); }
+            50% { transform: translate(0, -5px) scale(1.3); }
+            100% { transform: translate(0, 0) scale(1); }
+        }
+        .bump {
+            animation: bumpEffect 0.25s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -53,74 +120,89 @@
             <div class="navbar-nav d-flex flex-row align-items-center gap-3 gap-md-4 flex-shrink-0 order-md-3">
                 <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="#" style="transition: color 0.2s;">
                     <i class='bx bx-bell fs-2 fs-md-3 d-block'></i>
-                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Thông Báo</span>
+                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;"></span>
                 </a>
-                <a class="nav-link text-secondary text-center px-1 py-0 position-relative" href="index.php?page=cart" style="transition: color 0.2s;">
-                    <i class='bx bx-shopping-bag fs-2 fs-md-3 d-block'></i>
-                    <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Giỏ hàng</span>
+                <a href="index.php?page=cart" class="position-relative text-secondary me-3">
+                    <i class='bx bx-shopping-bag fs-2' id="cart-icon"></i>
+                    <span id="cart-count" class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">
+                        <?= isset($_SESSION['cart']) ? array_sum(array_column($_SESSION['cart'], 'quantity')) : 0 ?>
+                    </span>
                 </a>
                 <!-- <a class="nav-link text-secondary text-center px-1 py-0" href="index.php?page=profile" style="transition: color 0.2s;">
                     <i class='bx bx-user fs-2 fs-md-3 d-block'></i>
                     <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem;">Tài khoản</span>
                 </a> -->
                 <div class="dropdown">
-                <?php if (isset($_SESSION['user'])): ?>
-                    <a href="#" class="text-decoration-none text-dark d-flex flex-column align-items-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class='bx bx-user-check fs-4 text-success'></i>
-                        <span class="small d-block text-truncate" style="max-width: 90px;">
-                            <?= htmlspecialchars($_SESSION['user']['fullname'] ?? $_SESSION['user']['username']) ?>
-                        </span>
-                    </a>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="z-index: 9999;">
-                        <li>
-                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="index.php?page=profile">
-                                <i class='bx bx-id-card align-middle me-2 text-primary'></i> Thông tin cá nhân
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="index.php?page=my-orders">
-                                <i class='bx bx-package align-middle me-2 text-warning'></i> Đơn hàng của tôi
-                            </a>
-                        </li>
-                        
-                        <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
-                            <li><hr class="dropdown-divider"></li>
-                            <li>
-                                <a class="dropdown-item p-2 small text-decoration-none px-3 text-danger fw-bold" href="../admin/index.php">
-                                    <i class='bx bx-shield-quarter align-middle me-2'></i> Trang quản trị (Admin)
-                                </a>
-                            </li>
-                        <?php endif; ?>
-                        
-                        <li><hr class="dropdown-divider"></li>
-                        <li>
-                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-secondary" href="auth/logout.php">
-                                <i class='bx bx-log-out align-middle me-2 text-danger'></i> Đăng xuất
-                            </a>
-                        </li>
-                    </ul>
+                    <div class="dropdown d-flex align-items-center">
+                        <?php if (isset($_SESSION['user'])): 
+                            // Tránh lỗi nếu database không có trường fullname hoặc username
+                            $nameDisplay = !empty($_SESSION['user']['fullname']) ? $_SESSION['user']['fullname'] : (!empty($_SESSION['user']['username']) ? $_SESSION['user']['username'] : 'Khách');
+                            
+                            // Lấy chữ cái đầu tiên (hỗ trợ cả tiếng Việt có dấu nhờ mb_substr)
+                            $firstLetter = mb_strtoupper(mb_substr($nameDisplay, 0, 1, "UTF-8"), "UTF-8");
+                        ?>
+                            <div class="dropdown-toggle user-dropdown-toggle d-flex align-items-center gap-2" data-bs-toggle="dropdown" aria-expanded="false">
+                                <div class="user-avatar-placeholder" style="width: 35px; height: 35px; background: linear-gradient(135deg, #0047ab, #00d2ff); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem; box-shadow: 0 2px 6px rgba(0,71,171,0.2);">
+                                    <?= $firstLetter ?>
+                                </div>
+                                <span class="small d-none d-md-inline text-dark fw-medium text-truncate" style="max-width: 100px;">
+                                    <?= htmlspecialchars($nameDisplay) ?>
+                                </span>
+                            </div>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="z-index: 9999;">
+                                <li class="px-3 py-2 border-bottom d-md-none">
+                                    <span class="fw-bold text-dark small d-block"><?= htmlspecialchars($nameDisplay) ?></span>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item p-2 small px-3 text-dark" href="index.php?page=profile">
+                                        <i class='bx bx-id-card align-middle me-2 text-primary fs-5'></i> Thông tin cá nhân
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item p-2 small px-3 text-dark" href="index.php?page=my-orders">
+                                        <i class='bx bx-package align-middle me-2 text-warning fs-5'></i> Đơn hàng của tôi
+                                    </a>
+                                </li>
+                                
+                                <?php if (isset($_SESSION['user']['role']) && $_SESSION['user']['role'] === 'admin'): ?>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li>
+                                        <a class="dropdown-item p-2 small px-3 text-danger fw-bold" href="../admin/index.php">
+                                            <i class='bx bx-shield-quarter align-middle me-2 fs-5'></i> Trang quản trị (Admin)
+                                        </a>
+                                    </li>
+                                <?php endif; ?>
+                                
+                                <li><hr class="dropdown-divider"></li>
+                                <li>
+                                    <a class="dropdown-item p-2 small px-3 text-secondary" href="auth/logout.php">
+                                        <i class='bx bx-log-out align-middle me-2 text-danger fs-5'></i> Đăng xuất
+                                    </a>
+                                </li>
+                            </ul>
 
-                <?php else: ?>
-                    <a href="#" class="text-decoration-none text-dark d-flex flex-column align-items-center dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class='bx bx-user fs-4'></i>
-                        <span class="small d-block">Tài khoản</span>
-                    </a>
-                    
-                    <ul class="dropdown-menu dropdown-menu-end shadow-sm border-0 mt-2" style="z-index: 9999;">
-                        <li>
-                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark fw-bold" href="auth/login.php">
-                                <i class='bx bx-log-in align-middle me-2 text-success'></i> Đăng nhập
-                            </a>
-                        </li>
-                        <li>
-                            <a class="dropdown-item p-2 small text-decoration-none px-3 text-dark" href="auth/register.php">
-                                <i class='bx bx-user-plus align-middle me-2 text-info'></i> Đăng ký tài khoản
-                            </a>
-                        </li>
-                    </ul>
-                <?php endif; ?>
-            </div>
+                        <?php else: ?>
+                            <div class="dropdown-toggle user-dropdown-toggle d-flex flex-column align-items-center" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class='bx bx-user fs-2 fs-md-3 text-secondary d-block'></i>
+                                <span class="small d-none d-xl-inline text-muted" style="font-size: 0.75rem; margin-top: -2px;">Tài khoản</span>
+                            </div>
+                            
+                            <ul class="dropdown-menu dropdown-menu-end shadow border-0 mt-2" style="z-index: 9999;">
+                                <li>
+                                    <a class="dropdown-item p-2 small px-3 text-dark fw-bold" href="auth/login.php">
+                                        <i class='bx bx-log-in align-middle me-2 text-success fs-5'></i> Đăng nhập
+                                    </a>
+                                </li>
+                                <li>
+                                    <a class="dropdown-item p-2 small px-3 text-dark" href="auth/register.php">
+                                        <i class='bx bx-user-plus align-middle me-2 text-info fs-5'></i> Đăng ký tài khoản
+                                    </a>
+                                </li>
+                            </ul>
+                        <?php endif; ?>
+                    </div>
+                </div>
             </div>
             
             <form class="search-box w-100 flex-grow-1 mb-0 order-md-2 mt-2 mt-md-0" action="index.php" method="GET" style="max-width: 650px;">

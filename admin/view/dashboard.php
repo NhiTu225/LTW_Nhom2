@@ -4,15 +4,17 @@ $thong_ke = ['doanh_thu' => 0, 'don_hang' => 0, 'sach' => 0, 'khach_hang' => 0];
 $trang_thai_don = ['pending' => 0, 'processing' => 0, 'shipping' => 0, 'completed' => 0, 'canceled' => 0];
 $don_hang_moi = [];
 $top_sach = [];
-$doanh_thu_tuan = [0, 0, 0, 0]; // Mảng đại diện cho 4 tuần trong tháng
+
+// Khởi tạo mảng doanh thu 12 tháng mặc định bằng 0 cho biểu đồ
+$data_bieu_do = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]; 
 
 if (isset($pdo)) {
     try {
-        // 🌟 1. FIX LỖI CỘT: Đếm số liệu tổng quan (Hãy đổi 'total' thành tên cột tổng tiền thực tế của bạn)
-        $thong_ke['doanh_thu'] = $pdo->query("SELECT SUM(total) FROM orders WHERE status = 'completed'")->fetchColumn() ?? 0;
+        // 🌟 1. ĐÃ FIX: Đổi SUM(total) thành SUM(total_amount) khớp bảng orders
+        $thong_ke['doanh_thu'] = $pdo->query("SELECT SUM(total_amount) FROM orders WHERE status = 'completed'")->fetchColumn() ?? 0;
         $thong_ke['don_hang'] = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn() ?? 0;
         $thong_ke['sach'] = $pdo->query("SELECT COUNT(*) FROM books")->fetchColumn() ?? 0;
-        $thong_ke['khach_hang'] = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'client'")->fetchColumn() ?? 0;
+        $thong_ke['khach_hang'] = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'user' OR role = 'client'")->fetchColumn() ?? 0;
 
         // 2. Đếm số lượng đơn theo từng trạng thái thực tế
         $stmt = $pdo->query("SELECT status, COUNT(*) AS so_luong FROM orders GROUP BY status");
@@ -22,19 +24,20 @@ if (isset($pdo)) {
             }
         }
 
-        // 3. Lấy 5 đơn hàng mới nhất (Đổi o.total_price thành o.total cho đồng bộ)
-        $don_hang_moi = $pdo->query("SELECT o.*, u.name AS customer_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.created_at DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+        // 🌟 3. ĐÃ FIX: o.total_price thành o.total_amount và lấy fullname từ bảng users
+        $don_hang_moi = $pdo->query("SELECT o.*, u.fullname AS customer_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 4. Lấy 5 sách bán chạy nhất
-        $top_sach = $pdo->query("SELECT b.title, b.author, SUM(od.quantity) as da_ban, SUM(od.quantity * od.price) as doanh_thu FROM order_details od JOIN books b ON od.book_id = b.id GROUP BY od.book_id ORDER BY da_ban DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+        // 🌟 4. ĐÃ FIX: Đổi tên bảng từ order_details thành order_items cho khớp DB của em
+        $top_sach = $pdo->query("SELECT b.title, b.author, SUM(od.quantity) as da_ban, SUM(od.quantity * od.price) as doanh_thu FROM order_items od JOIN books b ON od.book_id = b.id GROUP BY od.book_id ORDER BY da_ban DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 🌟 5. TRUY VẤN DOANH THU ĐỘNG THEO 4 TUẦN TRONG THÁNG HIỆN TẠI
-        for ($i = 1; $i <= 4; $i++) {
-            $days_start = ($i - 1) * 7;
-            $days_end = $i * 7;
-            // Tính tổng tiền các đơn hoàn thành trong khoảng thời gian của từng tuần
-            $sql_week = "SELECT SUM(total) FROM orders WHERE status = 'completed' AND created_at >= DATE_SUB(NOW(), INTERVAL $days_end DAY) AND created_at < DATE_SUB(NOW(), INTERVAL $days_start DAY)";
-            $doanh_thu_tuan[4 - $i] = (int)($pdo->query($sql_week)->fetchColumn() ?? 0);
+        // 🌟 5. ĐÃ FIX: Đổi SUM(total) thành SUM(total_amount) để vẽ biểu đồ động 12 tháng
+        $sql_chart = "SELECT MONTH(created_at) AS thang, SUM(total_amount) AS tong FROM orders WHERE status = 'completed' GROUP BY MONTH(created_at)";
+        $stmt_chart = $pdo->query($sql_chart);
+        while ($row_chart = $stmt_chart->fetch(PDO::FETCH_ASSOC)) {
+            $m = (int)$row_chart['thang'];
+            if ($m >= 1 && $m <= 12) {
+                $data_bieu_do[$m - 1] = (int)$row_chart['tong'];
+            }
         }
 
     } catch (Exception $e) {
@@ -138,7 +141,7 @@ if (isset($pdo)) {
                             <tr>
                                 <td class="fw-bold">#<?= $dh['id'] ?></td>
                                 <td><?= htmlspecialchars($dh['customer_name'] ?? 'Khách vãng lai') ?></td>
-                                <td class="text-primary fw-semibold"><?= number_format($dh['total'] ?? $dh['tong_tien'] ?? 0) ?> đ</td>
+                                <td class="text-primary fw-semibold"><?= number_format($dh['total_amount'] ?? 0) ?> đ</td>
                                 <td><span class="badge bg-secondary"><?= $dh['status'] ?></span></td>
                             </tr>
                             <?php endforeach; ?>

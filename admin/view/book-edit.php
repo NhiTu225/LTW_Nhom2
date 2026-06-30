@@ -3,7 +3,7 @@
 $book = null;
 if (isset($_GET['id']) && isset($pdo)) {
     try {
-        $id = $_GET['id'];
+        $id = intval($_GET['id']); // Ép kiểu số nguyên ngay từ URL để bảo mật
         $stmt = $pdo->prepare("SELECT * FROM books WHERE id = ?");
         $stmt->execute([$id]);
         $book = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -17,7 +17,7 @@ if (isset($_GET['id']) && isset($pdo)) {
         echo "<div class='alert alert-danger mb-3'>Lỗi tải thông tin sách: " . $e->getMessage() . "</div>";
     }
 } else {
-    echo "<script>window.location.href='index.php?page=book-list';</script>";
+    header("Location: index.php?page=book-list");
     exit();
 }
 ?>
@@ -30,53 +30,86 @@ if (isset($_GET['id']) && isset($pdo)) {
     <p class="text-muted small m-0">Cập nhật lại các thông số hoặc hình ảnh của cuốn sách hệ thống</p>
 </div>
 
-<div class="card panel-box" style="max-width: 700px;">
-    <form action="modules/book/update.php" method="POST" enctype="multipart/form-data">
-        
-        <input type="hidden" name="id" value="<?= $book['id'] ?>">
+<div class="card panel-box w-100 p-4 border-0 shadow-sm rounded-3">
+    <form action="index.php?page=book-update" method="POST" enctype="multipart/form-data">
+        <div class="row g-4">
 
-        <div class="mb-3">
-            <label for="title" class="form-label fw-semibold small text-dark">Tên đầu sách <span class="text-danger">*</span></label>
-            <input type="text" class="form-control rounded-2" id="title" name="title" value="<?= htmlspecialchars($book['title']) ?>" required>
-        </div>
+            <div class="col-lg-8">
+                <div class="mb-3">
+                    <label for="title" class="form-label fw-semibold small text-dark">Tên đầu sách <span class="text-danger">*</span></label>
+                    <input type="text" class="form-control rounded-2" id="title" name="title" value="<?= htmlspecialchars($book['title']) ?>" required>
+                </div>
 
-        <div class="row g-3 mb-3">
-            <div class="col-md-6">
-                <label for="author" class="form-label fw-semibold small text-dark">Tác giả <span class="text-danger">*</span></label>
-                <input type="text" class="form-control rounded-2" id="author" name="author" value="<?= htmlspecialchars($book['author']) ?>" required>
+                <div class="row g-3 mb-3">
+                    <div class="col-md-3">
+                        <label for="author" class="form-label fw-semibold small text-dark">Tác giả <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control rounded-2" id="author" name="author" value="<?= htmlspecialchars($book['author']) ?>" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="category_id" class="form-label fw-semibold small text-dark">Danh mục sách <span class="text-danger">*</span></label>
+                        <select class="form-select rounded-2" id="category_id" name="category_id" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            <?php
+                            // Truy vấn lấy toàn bộ danh mục từ DB để hiển thị
+                            if (isset($pdo)) {
+                                $stmt_cat = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
+                                while ($cat = $stmt_cat->fetch(PDO::FETCH_ASSOC)) {
+                                    $selected = ($cat['id'] == $book['category_id']) ? 'selected' : '';
+                                    echo "<option value='{$cat['id']}' {$selected}>" . htmlspecialchars($cat['name']) . "</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="price" class="form-label fw-semibold small text-dark">Giá bán (₫) <span class="text-danger">*</span></label>
+                        <input type="number" class="form-control rounded-2" id="price" name="price" value="<?= (int)$book['price'] ?>" min="0" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="sale" class="form-label fw-semibold small text-dark">Giảm giá (%)</label>
+                        <input type="number" class="form-control rounded-2" id="sale" name="sale" value="<?= $book['sale'] ?? 0 ?>" min="0" max="100" placeholder="Ví dụ: 20">
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label for="description" class="form-label fw-semibold small text-dark">Mô tả nội dung sách</label>
+                    <textarea class="form-control rounded-2" id="description" name="description" rows="6"><?= htmlspecialchars($book['description'] ?? '') ?></textarea>
+                </div>
             </div>
-            <div class="col-md-6">
-                <label for="price" class="form-label fw-semibold small text-dark">Giá bán (₫) <span class="text-danger">*</span></label>
-                <input type="number" class="form-control rounded-2" id="price" name="price" value="<?= $book['price'] ?>" min="0" required>
+
+            <div class="col-lg-4 border-start ps-lg-4">
+                <label class="form-label fw-semibold small text-dark d-block">Hình ảnh bìa sách hiện tại</label>
+                <div class="mb-3 d-flex justify-content-center bg-light p-3 rounded-3 border style-container">
+                    <img id="img-preview" src="../public/upload/<?= htmlspecialchars($book['image'] ?? 'default.jpg') ?>" 
+                         class="rounded-2 border shadow-sm img-fluid" style="max-height: 220px; object-fit: cover;"
+                         onerror="this.src='https://placehold.co/150x220?text=No+Cover'">
+                </div>
+                <div class="mb-3">
+                    <label for="image" class="form-label fw-semibold small text-muted">Chọn ảnh mới để thay đổi:</label>
+                    <input type="file" class="form-control rounded-2" id="image" name="image" accept="image/*" onchange="previewImage(event)">
+                </div>
             </div>
-        </div>
 
-        <div class="mb-3">
-            <label class="form-label fw-semibold small text-dark d-block">Hình ảnh bìa sách hiện tại</label>
-            <div class="mb-2">
-                <img id="img-preview" src="../public/upload/<?= htmlspecialchars($book['image'] ?? 'default.jpg') ?>" 
-                     class="rounded-2 border shadow-sm" style="width: 110px; height: 150px; object-fit: cover;"
-                     onerror="this.src='https://placehold.co/110x150?text=No+Cover'">
+            <input type="hidden" name="id" value="<?= $book['id'] ?>">
+            <input type="hidden" name="old_image" value="<?= $book['image'] ?? '' ?>">
+
+            <div class="col-12 mt-4 border-top pt-3">
+                <div class="d-flex gap-2">
+                    <button type="submit" name="btn-edit" class="btn btn-success rounded-3 px-4 py-2">
+                        <i class="fa-solid fa-square-check me-2"></i>Cập nhật thay đổi
+                    </button>
+                    <a href="index.php?page=book-list" class="btn btn-light border rounded-3 px-3 py-2">Hủy bỏ</a>
+                </div>
             </div>
-            <label for="image" class="form-label fw-semibold small text-muted">Chọn ảnh mới nếu muốn thay đổi:</label>
-            <input type="file" class="form-control rounded-2" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-        </div>
 
-        <div class="mb-4">
-            <label for="description" class="form-label fw-semibold small text-dark">Mô tả nội dung sách</label>
-            <textarea class="form-control rounded-2" id="description" name="description" rows="4"><?= htmlspecialchars($book['description'] ?? '') ?></textarea>
-        </div>
-
-        <div class="d-flex gap-2">
-            <button type="submit" name="btn-edit" class="btn btn-success rounded-3 px-4 py-2">
-                <i class="fa-solid fa-square-check me-2"></i>Cập nhật thay đổi
-            </button>
-            <a href="index.php?page=book-list" class="btn btn-light border rounded-3 px-3 py-2">Hủy bỏ</a>
-        </div>
-    </form>
+        </div> </form>
 </div>
 
 <script>
+// Giữ lại hàm thuần túy này để khi chọn file ảnh mới thì nó đổi luôn trên màn hình cho Admin thấy
 function previewImage(event) {
     const reader = new FileReader();
     reader.onload = function() {

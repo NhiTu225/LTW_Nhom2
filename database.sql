@@ -135,8 +135,6 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`id`, `username`, `password`, `fullname`, `email`, `role`, `created_at`) VALUES
                     (1, 'admin', '123456', 'Administrator', 'admin@example.com', 'admin', '2026-05-18 11:42:07');
-INSERT INTO `users` (`id`, `username`, `password`, `fullname`, `email`, `role`, `created_at`) VALUES                    
-                    (2, '1', '123', 'user', 'user@xempla.com', 'user', '2026-06-18 11:42:07');
 
 
 --

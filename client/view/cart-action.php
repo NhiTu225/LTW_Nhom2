@@ -1,77 +1,89 @@
 <?php
-session_start();
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 if (file_exists('../../config/db.php')) {
-    require_once '../../config/db.php';
-} else {
-    die("Không tìm thấy kết nối CSDL tại vị trí chỉ định!");
+    include_once '../../config/db.php';
 }
-// Lấy hành động từ URL (add, update, delete)
+
 $action = $_GET['action'] ?? '';
+$id = intval($_GET['id'] ?? 0);
 
-switch ($action) {
-    case 'add':
-        if (!isset($SESSION['user'])) {
-            header("Location: ../auth/login.php?error=Đăng nhập để thêm sản phẩm vào giỏ");
-            exit();
+// --- 🌟 HÀNH ĐỘNG 1: THÊM VÀO GIỎ (ĐÃ SỬA Ở BƯỚC TRƯỚC) ---
+
+if ($action === 'add' && $id > 0) {
+    $quantity = intval($_POST['quantity'] ?? 1);
+    
+    // Lấy thông tin sách từ DB
+    $stmt = $pdo->prepare("SELECT * FROM books WHERE id = ?");
+    $stmt->execute([$id]);
+    $book = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($book) {
+        // Nếu chưa có giỏ hàng, khởi tạo mảng
+        if (!isset($_SESSION['cart'])) {
+            $_SESSION['cart'] = [];
         }
-        $book_id = intval($_GET['id'] ?? 0);
-        $quantity = intval($_POST['quantity'] ?? 1); // Lấy số lượng từ form detail, mặc định là 1
 
-        if ($book_id > 0 && isset($pdo)) {
-            // Lấy thông tin sách từ DB để đảm bảo giá tiền chính xác
-            $stmt = $pdo->prepare("SELECT title, price, image FROM books WHERE id = ?");
-            $stmt->execute([$book_id]);
-            $book = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            if ($book) {
-                // Nếu giỏ hàng chưa tồn tại, khởi tạo mảng rỗng
-                if (!isset($_SESSION['cart'])) {
-                    $_SESSION['cart'] = [];
-                }
-
-                // Nếu sách đã có trong giỏ, chỉ cần cộng dồn số lượng
-                if (isset($_SESSION['cart'][$book_id])) {
-                    $_SESSION['cart'][$book_id]['quantity'] += $quantity;
-                } else {
-                    // Nếu chưa có, thêm mới sản phẩm vào giỏ
-                    $_SESSION['cart'][$book_id] = [
-                        'title' => $book['title'],
-                        'price' => $book['price'],
-                        'image' => $book['image'],
-                        'quantity' => $quantity
-                    ];
-                }
-            }
+        // 💥 CHÌA KHÓA Ở ĐÂY: Kiểm tra xem đã có ID này trong giỏ chưa
+        if (isset($_SESSION['cart'][$id])) {
+            // Nếu có rồi thì chỉ tăng số lượng
+            $_SESSION['cart'][$id]['quantity'] += $quantity;
+        } else {
+            // Nếu chưa có thì thêm mới vào mảng
+            $_SESSION['cart'][$id] = [
+                'id' => $book['id'],
+                'title' => $book['title'],
+                'price' => $book['price'],
+                'image' => $book['image'],
+                'quantity' => $quantity
+            ];
         }
-        // Thêm xong thì quay lại trang giỏ hàng để kiểm tra
-        header("Location: ../index.php?page=cart");
-        exit();
-
-    case 'update':
-        // Cập nhật số lượng sách trực tiếp trong trang giỏ hàng (giỏ hàng đẩy mảng số lượng lên)
-        if (isset($_POST['quantity']) && is_array($_POST['quantity'])) {
-            foreach ($_POST['quantity'] as $id => $qty) {
-                $qty = intval($qty);
-                if ($qty <= 0) {
-                    unset($_SESSION['cart'][$id]); // Số lượng <= 0 thì xóa luôn khỏi giỏ
-                } else if (isset($_SESSION['cart'][$id])) {
-                    $_SESSION['cart'][$id]['quantity'] = $qty;
-                }
-            }
-        }
-        header("Location: ../index.php?page=cart");
-        exit();
-
-    case 'delete':
-        $book_id = intval($_GET['id'] ?? 0);
-        if (isset($_SESSION['cart'][$book_id])) {
-            unset($_SESSION['cart'][$book_id]); // Xóa cuốn sách này ra khỏi Session
-        }
-        header("Location: ../index.php?page=cart");
-        exit();
-
-    default:
-        header("Location: ../index.php");
-        exit();
+    }
+    
+    // Trả về tổng số lượng để JS cập nhật Badge trên Header
+    $total_items = array_sum(array_column($_SESSION['cart'], 'quantity'));
+    echo $total_items; 
+    exit();
 }
+
+// --- 🌟 HÀNH ĐỘNG 2: CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG (SỬA CHỖ NÀY) ---
+if ($action === 'update') {
+    $quantities = $_POST['quantities'] ?? []; // Mảng số lượng gửi từ form lên
+    if (!empty($quantities) && isset($_SESSION['cart'])) {
+        foreach ($quantities as $book_id => $qty) {
+            $qty = intval($qty);
+            if ($qty <= 0) {
+                unset($_SESSION['cart'][$book_id]); // Số lượng <= 0 thì xóa luôn
+            } else if (isset($_SESSION['cart'][$book_id])) {
+                $_SESSION['cart'][$book_id]['quantity'] = $qty; // Cập nhật số lượng mới
+            }
+        }
+    }
+    // 💥 CHÌA KHÓA: Đẩy về đúng trang giỏ hàng chứ không về trang chủ nữa
+    header("Location: ../index.php?page=cart");
+    exit();
+}
+
+// --- 🌟 HÀNH ĐỘNG 3: XÓA 1 SẢN PHẨM KHỎI GIỎ (SỬA CHỖ NÀY) ---
+if ($action === 'delete' && $id > 0) {
+    if (isset($_SESSION['cart'][$id])) {
+        unset($_SESSION['cart'][$id]);
+    }
+    // 💥 CHÌA KHÓA: Đẩy về đúng trang giỏ hàng
+    header("Location: ../index.php?page=cart");
+    exit();
+}
+
+// --- 🌟 HÀNH ĐỘNG 4: XÓA SẠCH SAU KHI ĐẶT HÀNG THÀNH CÔNG ---
+if ($action === 'clear_success') {
+    unset($_SESSION['cart']);
+    header("Location: ../index.php");
+    exit();
+}
+
+// Mặc định nếu chạy bừa bãi thì về trang chủ
+header("Location: ../index.php");
+exit();
+?>

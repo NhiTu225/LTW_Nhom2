@@ -1,4 +1,9 @@
 <?php
+session_set_cookie_params([
+    'path' => '/',
+    'httponly' => true
+]);
+
 session_start();
 include_once 'layouts/header.php';
 // kết nối database

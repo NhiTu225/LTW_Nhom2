@@ -7,7 +7,7 @@ if (isset($_SESSION['user'])) {
 }
 
 // Nếu muốn xóa sạch luôn cả giỏ hàng khi logout thì em dùng lệnh dưới (tùy chọn)
-// session_destroy();
+session_destroy();
 
 // Đăng xuất xong, đá người dùng quay trở lại trang chủ client
 header("Location: ../index.php");
