@@ -71,7 +71,7 @@ if (isset($_SESSION['user'])) {
             </div>
         <?php endif; ?>
 
-        <form action="login_action.php" method="POST">
+        <form action="../api/login_action.php" method="POST">
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary">Tên đăng nhập</label>
                 <div class="input-group">

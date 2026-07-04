@@ -10,7 +10,7 @@ if (file_exists('../../config/db.php')) {
 $action = $_GET['action'] ?? '';
 $id = intval($_GET['id'] ?? 0);
 
-// --- 🌟 HÀNH ĐỘNG 1: THÊM VÀO GIỎ (ĐÃ SỬA Ở BƯỚC TRƯỚC) ---
+// --- THÊM VÀO GIỎ  ---
 
 if ($action === 'add' && $id > 0) {
     $quantity = intval($_POST['quantity'] ?? 1);
@@ -21,17 +21,13 @@ if ($action === 'add' && $id > 0) {
     $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($book) {
-        // Nếu chưa có giỏ hàng, khởi tạo mảng
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
         }
 
-        // 💥 CHÌA KHÓA Ở ĐÂY: Kiểm tra xem đã có ID này trong giỏ chưa
         if (isset($_SESSION['cart'][$id])) {
-            // Nếu có rồi thì chỉ tăng số lượng
             $_SESSION['cart'][$id]['quantity'] += $quantity;
         } else {
-            // Nếu chưa có thì thêm mới vào mảng
             $_SESSION['cart'][$id] = [
                 'id' => $book['id'],
                 'title' => $book['title'],
@@ -48,35 +44,35 @@ if ($action === 'add' && $id > 0) {
     exit();
 }
 
-// --- 🌟 HÀNH ĐỘNG 2: CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG (SỬA CHỖ NÀY) ---
+// --- CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG  ---
 if ($action === 'update') {
-    $quantities = $_POST['quantities'] ?? []; // Mảng số lượng gửi từ form lên
+    $quantities = $_POST['quantities'] ?? [];
     if (!empty($quantities) && isset($_SESSION['cart'])) {
         foreach ($quantities as $book_id => $qty) {
             $qty = intval($qty);
             if ($qty <= 0) {
-                unset($_SESSION['cart'][$book_id]); // Số lượng <= 0 thì xóa luôn
+                unset($_SESSION['cart'][$book_id]);
             } else if (isset($_SESSION['cart'][$book_id])) {
-                $_SESSION['cart'][$book_id]['quantity'] = $qty; // Cập nhật số lượng mới
+                $_SESSION['cart'][$book_id]['quantity'] = $qty;
             }
         }
     }
-    // 💥 CHÌA KHÓA: Đẩy về đúng trang giỏ hàng chứ không về trang chủ nữa
+    // Đẩy về đúng trang giỏ hàng chứ không về trang chủ nữa
     header("Location: ../index.php?page=cart");
     exit();
 }
 
-// --- 🌟 HÀNH ĐỘNG 3: XÓA 1 SẢN PHẨM KHỎI GIỎ (SỬA CHỖ NÀY) ---
+// --- XÓA 1 SẢN PHẨM KHỎI GIỎ ---
 if ($action === 'delete' && $id > 0) {
     if (isset($_SESSION['cart'][$id])) {
         unset($_SESSION['cart'][$id]);
     }
-    // 💥 CHÌA KHÓA: Đẩy về đúng trang giỏ hàng
+    // Đẩy về đúng trang giỏ hàng
     header("Location: ../index.php?page=cart");
     exit();
 }
 
-// --- 🌟 HÀNH ĐỘNG 4: XÓA SẠCH SAU KHI ĐẶT HÀNG THÀNH CÔNG ---
+// --- XÓA SẠCH SAU KHI ĐẶT HÀNG THÀNH CÔNG ---
 if ($action === 'clear_success') {
     unset($_SESSION['cart']);
     header("Location: ../index.php");

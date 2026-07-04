@@ -1,3 +1,4 @@
+
 <?php
 $books = [];
 if (isset($pdo)) {
@@ -36,25 +37,34 @@ if (isset($pdo)) {
                 <?php if (empty($books)): ?>
                     <tr><td colspan="6" class="text-center text-muted py-4">Kho hàng trống rỗng. Hãy thêm sách mới!</td></tr>
                 <?php else: ?>
-                    <?php foreach ($books as $b): ?>
+                    <?php 
+                    $stt = 1; // KHAI BÁO NGAY TẠI ĐÂY, TRƯỚC KHI FOREACH BẮT ĐẦU
+                    foreach ($books as $b): 
+                    ?>
                     <tr>
-                        <td class="fw-bold text-secondary">#<?= $b['id'] ?></td>
+                        <!-- Hiển thị STT theo thứ tự -->
+                        <td class="fw-bold text-secondary">#<?= $stt++ ?></td> 
+                        
                         <td>
-                            <img src="../public/upload/<?= htmlspecialchars($b['image'] ?? 'default.jpg') ?>" 
-                                 class="rounded-2 border" style="width: 50px; height: 68px; object-fit: cover;"
-                                 onerror="this.src='https://placehold.co/50x68?text=No+Cover'">
+                            <?php 
+                            $image_path = !empty($b['image']) ? $b['image'] : 'https://placehold.co/50x70?text=No+Img';
+                            $img_src = (strpos($image_path, 'http') === 0) ? $image_path : '../public/images/' . $image_path;
+                            ?>
+                            <img src="<?php echo $img_src; ?>" alt="Bìa sách" style="width: 50px; height: 70px; object-fit: cover;">
                         </td>
+                        
                         <td><div class="fw-bold text-dark"><?= htmlspecialchars($b['title']) ?></div></td>
                         <td class="text-muted small"><?= htmlspecialchars($b['author']) ?></td>
                         <td class="fw-semibold text-primary"><?= number_format($b['price']) ?> ₫</td>
+                        
                         <td>
                             <div class="d-flex justify-content-center gap-2">
                                 <a href="index.php?page=book-edit&id=<?= $b['id'] ?>" class="btn btn-sm btn-outline-primary rounded-2 px-2.5">
                                     <i class="fa-solid fa-pen-to-square me-1"></i>Sửa
                                 </a>
                                 <a href="modules/book/delete.php?id=<?= $b['id'] ?>" 
-                                   class="btn btn-sm btn-outline-danger rounded-2 px-2.5"
-                                   onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này không? Hành động này không thể hoàn tác!');">
+                                    class="btn btn-sm btn-outline-danger rounded-2 px-2.5"
+                                    onclick="return confirm('Bạn có chắc chắn muốn xóa cuốn sách này không? Hành động này không thể hoàn tác!');">
                                     <i class="fa-solid fa-trash me-1"></i>Xóa
                                 </a>
                             </div>

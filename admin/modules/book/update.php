@@ -18,6 +18,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
     $price = floatval($_POST['price'] ?? 0);
     $sale = intval($_POST['sale'] ?? 0); // LẤY DỮ LIỆU TỪ Ô NHẬP % GIẢM GIÁ MỚI
     $description = trim($_POST['description'] ?? '');
+    $sale_start = !empty($_POST['sale_start']) ? $_POST['sale_start'] : null;
+    $sale_end = !empty($_POST['sale_end']) ? $_POST['sale_end'] : null;
     
     // LOGIC TỰ ĐỘNG TÍNH TOÁN GIÁ CŨ (OLD_PRICE) TRƯỚC KHI LƯU DB
     if ($sale > 0 && $sale < 100) {
@@ -30,44 +32,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
     }
 
     $old_image = $_POST['old_image'] ?? '';
-    $image_name = $old_image;
+    $image_name = $_POST['image'] ?? 'default.jpg';
 
     // Xử lý upload tệp ảnh mới
-    if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-        $file_tmp = $_FILES['image']['tmp_name'];
-        $file_name = $_FILES['image']['name'];
+    // if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
+    //     $file_tmp = $_FILES['image']['tmp_name'];
+    //     $file_name = $_FILES['image']['name'];
         
-        $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
-        $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+    //     $ext = strtolower(pathinfo($file_name, PATHINFO_EXTENSION));
+    //     $allowed = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
 
-        if (in_array($ext, $allowed)) {
-            // Đặt tên ảnh mới mộc mạc bằng time() không lo trùng lặp
-            $image_name = time() . '_' . basename($file_name);
+    //     if (in_array($ext, $allowed)) {
+    //         // Đặt tên ảnh mới mộc mạc bằng time() không lo trùng lặp
+    //         $image_name = time() . '_' . basename($file_name);
             
-            // 🌟 4. ĐÃ SỬA: Đường dẫn thư mục ảnh tính từ vị trí file admin/index.php
-            $upload_dir = '../public/upload/'; 
+    //         $upload_dir = '../public/upload/'; 
             
-            if (!is_dir($upload_dir)) {
-                mkdir($upload_dir, 0777, true);
-            }
+    //         if (!is_dir($upload_dir)) {
+    //             mkdir($upload_dir, 0777, true);
+    //         }
             
-            // Di chuyển file vào thư mục lưu trữ và xóa ảnh cũ
-            if (move_uploaded_file($file_tmp, $upload_dir . $image_name)) {
-                if (!empty($old_image) && file_exists($upload_dir . $old_image) && $old_image !== 'default.jpg') {
-                    unlink($upload_dir . $old_image);
-                }
-            }
-        }
-    }
+    //         // Di chuyển file vào thư mục lưu trữ và xóa ảnh cũ
+    //         if (move_uploaded_file($file_tmp, $upload_dir . $image_name)) {
+    //             if (!empty($old_image) && file_exists($upload_dir . $old_image) && $old_image !== 'default.jpg') {
+    //                 unlink($upload_dir . $old_image);
+    //             }
+    //         }
+    //     }
+    // }
 
     if ($id > 0 && !empty($title)) {
         try {
             // CẬP NHẬT CÂU LỆNH SQL: Thêm tác giả, giá cũ (old_price) và phần trăm giảm giá (sale)
-            $sql = "UPDATE books 
-                    SET title = ?, author = ?, category_id = ?, price = ?, old_price = ?, sale = ?, description = ?, image = ? 
+            $sql = "UPDATE books SET title = ?, author = ?, category_id = ?, price = ?, old_price = ?, 
+                    sale = ?, sale_start = ?, sale_end = ?, description = ?, image = ? 
                     WHERE id = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$title, $author, $category_id, $price, $old_price, $sale, $description, $image_name, $id]);
+            $stmt->execute([$title, $author, $category_id, $price, $old_price, $sale, $sale_start, $sale_end, $description, $image_name, $id]);
 
             echo "<script>window.location.href='index.php?page=book-list';</script>";
             exit();

@@ -71,6 +71,17 @@ if (isset($_GET['id']) && isset($pdo)) {
                     <div class="col-md-3">
                         <label for="sale" class="form-label fw-semibold small text-dark">Giảm giá (%)</label>
                         <input type="number" class="form-control rounded-2" id="sale" name="sale" value="<?= $book['sale'] ?? 0 ?>" min="0" max="100" placeholder="Ví dụ: 20">
+                        
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sale_start" class="form-label fw-semibold small text-dark">Bắt đầu giảm giá</label>
+                        <input type="datetime-local" class="form-control rounded-2" id="sale_start" name="sale_start" 
+                            value="<?= !empty($book['sale_start']) ? date('Y-m-d\TH:i', strtotime($book['sale_start'])) : '' ?>">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sale_end" class="form-label fw-semibold small text-dark">Kết thúc giảm giá</label>
+                        <input type="datetime-local" class="form-control rounded-2" id="sale_end" name="sale_end" 
+                            value="<?= !empty($book['sale_end']) ? date('Y-m-d\TH:i', strtotime($book['sale_end'])) : '' ?>">
                     </div>
                 </div>
 
@@ -81,16 +92,17 @@ if (isset($_GET['id']) && isset($pdo)) {
             </div>
 
             <div class="col-lg-4 border-start ps-lg-4">
-                <label class="form-label fw-semibold small text-dark d-block">Hình ảnh bìa sách hiện tại</label>
-                <div class="mb-3 d-flex justify-content-center bg-light p-3 rounded-3 border style-container">
-                    <img id="img-preview" src="../public/upload/<?= htmlspecialchars($book['image'] ?? 'default.jpg') ?>" 
-                         class="rounded-2 border shadow-sm img-fluid" style="max-height: 220px; object-fit: cover;"
-                         onerror="this.src='https://placehold.co/150x220?text=No+Cover'">
-                </div>
-                <div class="mb-3">
-                    <label for="image" class="form-label fw-semibold small text-muted">Chọn ảnh mới để thay đổi:</label>
-                    <input type="file" class="form-control rounded-2" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-                </div>
+                <label class="form-label">Link ảnh bìa sách (URL):</label>
+                <input type="text" name="image" class="form-control" value="<?php echo $book['image'] ?? ''; ?>" placeholder="Dán link ảnh từ Google vào đây...">
+
+                <!-- Gợi ý: Có thể thêm một đoạn script nhỏ để hiển thị ảnh preview ngay lập tức khi dán link -->
+                <img id="preview-img" src="<?php echo $book['image'] ?? ''; ?>" style="max-width: 150px; margin-top: 10px;">
+                <script>
+                    // Script để ảnh hiển thị ngay khi dán link
+                    document.querySelector('input[name="image"]').addEventListener('input', function(e) {
+                        document.getElementById('preview-img').src = e.target.value;
+                    });
+                </script>
             </div>
 
             <input type="hidden" name="id" value="<?= $book['id'] ?>">

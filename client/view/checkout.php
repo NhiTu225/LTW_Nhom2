@@ -128,7 +128,7 @@ function submitOrder() {
     alert('Đặt hàng thành công! Cảm ơn bạn đã mua sắm tại GroupTwo.');
     
     // Xóa giỏ hàng ngầm rồi chuyển về trang chủ
-    window.location.href = 'view/cart-action.php?action=clear_success'; 
+    window.location.href = 'api/cart-action.php?action=clear_success'; 
 }
 </script>
 

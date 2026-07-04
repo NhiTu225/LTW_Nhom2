@@ -70,7 +70,7 @@ if (isset($_SESSION['user'])) {
             </div>
         <?php endif; ?>
 
-        <form action="register_action.php" method="POST">
+        <form action="../api/register_action.php" method="POST">
             <div class="mb-3">
                 <label class="form-label small fw-semibold text-secondary">Họ và tên</label>
                 <div class="input-group">

@@ -28,26 +28,33 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $author = trim($_POST['author'] ?? '');
     $price = intval($_POST['price'] ?? 0);
     $description = trim($_POST['description'] ?? '');
-    $image_name = 'default.jpg'; 
+    $image_name = trim($_POST['image'] ?? '');
+    if (empty($image_name)) {
+        $image_name = 'default.jpg';
+    }
+    $sale_start = !empty($_POST['sale_start']) ? $_POST['sale_start'] : null;
+    $sale_end = !empty($_POST['sale_end']) ? $_POST['sale_end'] : null;
+    $sale = intval($_POST['sale'] ?? 0);
 
     // 3. Xử lý logic Upload ảnh bìa sách vào public/upload/
-    if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
-        $target_dir = "../../../public/upload/"; 
-        $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
-        $image_name = time() . '_' . uniqid() . '.' . $ext;
-        $target_file = $target_dir . $image_name;
+    // if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
+    //     $target_dir = "../../../public/upload/"; 
+    //     $ext = pathinfo($_FILES['image']['name'], PATHINFO_EXTENSION);
+    //     $image_name = time() . '_' . uniqid() . '.' . $ext;
+    //     $target_file = $target_dir . $image_name;
 
-        if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
-            $image_name = 'default.jpg'; 
-        }
-    }
+    //     if (!move_uploaded_file($_FILES['image']['tmp_name'], $target_file)) {
+    //         $image_name = 'default.jpg'; 
+    //     }
+    // }
 
     // 4. Chèn dữ liệu vào bảng books bằng cú pháp PDO chuẩn
     if (!empty($title) && !empty($author)) {
         try {
-            $sql = "INSERT INTO books (title, author, price, image, description) VALUES (?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO books (title, author, price, image, description, sale, sale_start, sale_end) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$title, $author, $price, $image_name, $description]);
+            $stmt->execute([$title, $author, $price, $image_name, $description, $sale, $sale_start, $sale_end]);
         } catch (Exception $e) {
             die("Lỗi Database khi thêm sách: " . $e->getMessage());
         }

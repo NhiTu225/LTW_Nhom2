@@ -13,7 +13,7 @@ $total_money = 0;
             <div class="mb-3">
                 <i class='bx bx-shopping-bag text-muted' style="font-size: 5rem;"></i>
             </div>
-            <p class="text-muted fs-5">Giỏ hàng của bạn đang trống rỗng. Đầy nó ngay đi nào!</p>
+            <p class="text-muted fs-5">Giỏ hàng của bạn đang trống. Mua sắm ngay!</p>
             <a href="index.php" class="btn text-white px-4 py-2 mt-2 fw-bold" style="background-color: #cd1818;">
                 Quay lại mua sắm
             </a>
@@ -25,7 +25,7 @@ $total_money = 0;
             <div class="col-lg-8">
                 <div class="card border-0 rounded-3 shadow-sm p-3 bg-white">
                     <!-- Form gửi lên view/cart-action.php?action=update để cập nhật số lượng -->
-                    <form action="view/cart-action.php?action=update" method="POST">
+                    <form action="../api/cart-action.php?action=update" method="POST">
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
                                 <thead class="table-light">

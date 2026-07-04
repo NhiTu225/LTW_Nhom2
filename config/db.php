@@ -5,6 +5,8 @@ $host = '127.0.0.1';
 $dbname = 'ltw_nhom2';
 $username = 'root';
 $password = ''; 
+// $base_path = 'WEB_BAN_HANG';
+// define('URL_API', $base_path . '/api');
 
 try {
     // 1. KẾT NỐI VỚI MYSQL THẬT TRÊN XAMPP

@@ -3,7 +3,7 @@ session_start();
 
 // 1. Kết nối cơ sở dữ liệu (Khớp với cấu trúc thư mục của dự án)
 if (file_exists('../../config/db.php')) {
-    require_once '../../config/db.php';
+    require_once __DIR__ .'/../config/db.php';
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {

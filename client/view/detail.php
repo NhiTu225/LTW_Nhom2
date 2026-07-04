@@ -31,7 +31,11 @@ if (isset($pdo)) {
 <div class="container my-5">
     <div class="row bg-white p-4 rounded-3 shadow-sm g-4">
         <div class="col-md-5 text-center border-end">
-            <img src="../public/images/<?php echo $book['image']; ?>" class="img-fluid rounded shadow-sm mb-3" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://placehold.co/300x400?text=Fahasa'">
+            <?php 
+                // Kiểm tra xem link ảnh có phải là URL trên mạng không (có chứa http)
+                $img_src = (strpos($book['image'], 'http') === 0) ? $book['image'] : '../public/images/' . $book['image'];
+                ?>
+                <img src="<?php echo $img_src; ?>" class="img-fluid rounded shadow-sm mb-3" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://placehold.co/300x400?text=GroupTwo'">
         </div>
 
         <div class="col-md-7">
@@ -60,7 +64,7 @@ if (isset($pdo)) {
                 <?php endif; ?>
             </div>
 
-            <form action="view/cart-action.php?action=add&id=<?= $book['id'] ?>" method="POST" class="mb-4">
+            <form action="api/checkout-action.php?action=buy&id=<?= $book['id'] ?>" method="POST" class="mb-4">
                 <input type="hidden" id="book_id" name="book_id" value="<?php echo $book['id']; ?>">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <span class="fw-medium text-secondary">Số lượng:</span>
@@ -142,7 +146,7 @@ if (isset($pdo)) {
                 <h5 class="fw-bold text-dark mb-3 fs-6">Viết nhận xét của bạn</h5>
                 
                 <?php if (isset($_SESSION['user'])): ?>
-                    <form action="view/review-action.php" method="POST">
+                    <form action="../api/review-action.php" method="POST">
                         <input type="hidden" name="book_id" value="<?= $book['id'] ?>">
                         
                         <div class="mb-3">
@@ -216,8 +220,7 @@ document.getElementById('btn-add-to-cart').addEventListener('click', function(e)
 
         // Gửi dữ liệu bằng API XMLHttpRequest (AJAX thuần không cần thư viện)
         const xhr = new XMLHttpRequest();
-        // Gọi thẳng sang file cùng thư mục view
-        xhr.open('POST', 'cart-action.php?action=add&id=' + bookId, true);
+        xhr.open('POST', 'api/cart-action.php?action=add&id=' + bookId, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         
         xhr.onload = function() {

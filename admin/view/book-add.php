@@ -17,13 +17,43 @@
                 </div>
 
                 <div class="row g-3 mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-3">
                         <label for="author" class="form-label fw-semibold small text-dark">Tác giả <span class="text-danger">*</span></label>
                         <input type="text" class="form-control rounded-2" id="author" name="author" placeholder="Ví dụ: Dale Carnegie" required>
                     </div>
-                    <div class="col-md-6">
+
+                    <div class="col-md-3">
+                        <label for="category_id" class="form-label fw-semibold small text-dark">Danh mục sách <span class="text-danger">*</span></label>
+                        <select class="form-select rounded-2" id="category_id" name="category_id" required>
+                            <option value="">-- Chọn danh mục --</option>
+                            <?php
+                            if (isset($pdo)) {
+                                $stmt_cat = $pdo->query("SELECT * FROM categories ORDER BY name ASC");
+                                while ($cat = $stmt_cat->fetch(PDO::FETCH_ASSOC)) {
+                                    echo "<option value='{$cat['id']}'>" . htmlspecialchars($cat['name']) . "</option>";
+                                }
+                            }
+                            ?>
+                        </select>
+                    </div>
+
+                    <div class="col-md-3">
                         <label for="price" class="form-label fw-semibold small text-dark">Giá bán (₫) <span class="text-danger">*</span></label>
                         <input type="number" class="form-control rounded-2" id="price" name="price" placeholder="Ví dụ: 89000" min="0" required>
+                    </div>
+
+                    <div class="col-md-3">
+                        <label for="sale" class="form-label fw-semibold small text-dark">Giảm giá (%)</label>
+                        <input type="number" class="form-control rounded-2" id="sale" name="sale" value="0" min="0" max="100" placeholder="Ví dụ: 20">
+                    </div>
+                    
+                    <div class="col-md-6">
+                        <label for="sale_start" class="form-label fw-semibold small text-dark">Bắt đầu giảm giá</label>
+                        <input type="datetime-local" class="form-control rounded-2" id="sale_start" name="sale_start">
+                    </div>
+                    <div class="col-md-6">
+                        <label for="sale_end" class="form-label fw-semibold small text-dark">Kết thúc giảm giá</label>
+                        <input type="datetime-local" class="form-control rounded-2" id="sale_end" name="sale_end">
                     </div>
                 </div>
 
@@ -34,17 +64,17 @@
             </div>
 
             <div class="col-lg-4 border-start ps-lg-4">
-                <label for="image" class="form-label fw-semibold small text-dark">Hình ảnh bìa sách</label>
-                
-                <div class="mb-3 d-flex justify-content-center bg-light p-3 rounded-3 border style-container">
-                    <img id="img-preview" src="https://placehold.co/150x220?text=Preview" 
-                         class="rounded-2 border shadow-sm img-fluid" style="max-height: 220px; object-fit: cover;">
-                </div>
+                <label class="form-label">Link ảnh bìa sách (URL):</label>
+                <input type="text" name="image" class="form-control" value="<?php echo $book['image'] ?? ''; ?>" placeholder="Dán link ảnh từ Google vào đây...">
 
-                <div class="mb-2">
-                    <input type="file" class="form-control rounded-2" id="image" name="image" accept="image/*" onchange="previewImage(event)">
-                </div>
-                <div class="form-text text-muted" style="font-size: 0.75rem;">Định dạng cho phép: .jpg, .png, .jpeg, .webp</div>
+                <!-- Gợi ý: Có thể thêm một đoạn script nhỏ để hiển thị ảnh preview ngay lập tức khi dán link -->
+                <img id="preview-img" src="<?php echo $book['image'] ?? ''; ?>" style="max-width: 150px; margin-top: 10px;">
+                <script>
+                    // Script để ảnh hiển thị ngay khi dán link
+                    document.querySelector('input[name="image"]').addEventListener('input', function(e) {
+                        document.getElementById('preview-img').src = e.target.value;
+                    });
+                </script>
             </div>
 
             <div class="col-12 mt-4 border-top pt-3">
@@ -56,11 +86,11 @@
                 </div>
             </div>
 
-        </div> </form>
+        </div> 
+    </form>
 </div>
 
 <script>
-// Giữ lại cơ chế đổi nguồn ảnh tức thì khi chọn file để Admin xem trước
 function previewImage(event) {
     const reader = new FileReader();
     reader.onload = function() {

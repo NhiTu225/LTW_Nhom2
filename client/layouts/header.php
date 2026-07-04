@@ -1,4 +1,13 @@
-
+<?php
+    require_once dirname(__DIR__, 2) . '/config/db.php';
+    try {
+        // Chỉ chọn các cột có tồn tại trong bảng
+        $stmt = $pdo->query("SELECT id, name FROM categories"); 
+        $categories = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (Exception $e) {
+        $categories = []; 
+    }
+?>
 <!DOCTYPE html>
 <html lang="vi">
 <head>
@@ -8,7 +17,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
 
-    <link rel="icon" type="image/png" href="../../public/images/2.png">
+    <link rel="icon" type="image/png" href="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcS4t7gDlw8HrkKAsw6FkSf1s3Tkqw-4mBM8RUNEx49fTw&s=10">
     <style>
         .search-box { max-width: 600px; width: 100%; }
         .navbar { border-bottom: 1px solid #ebebeb; background-color: #fff !important; }
@@ -87,7 +96,7 @@
         }
     </style>
 </head>
-<body>
+<body >
 
     <div class="text-white text-center py-2 fw-bold small" style="background-color: #0047ab;">
         🔥 ĐÓN HÈ RỰC RỠ - SĂN SALE NGẬP TRÀN GIẢM GIÁ LÊN ĐẾN 50%! 🔥
@@ -106,11 +115,22 @@
                         <i class='bx bx-grid-alt fs-3 text-secondary'></i>
                         <i class='bx bx-chevron-down text-muted' style="font-size: 0.8rem;"></i>
                     </button>
+                    
+                    
                     <ul class="dropdown-menu mt-3 shadow border-0" aria-labelledby="dropdownMenuButton">
-                        <li><a class="dropdown-item py-2" href="index.php?category=it"><i class='bx bx-code-alt me-2 text-primary'></i> Sách Công Nghệ</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=economy"><i class='bx bx-trending-up me-2 text-success'></i> Sách Kinh Tế</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=skills"><i class='bx bx-bulb me-2 text-warning'></i> Tâm Lý Kỹ Năng</a></li>
-                        <li><a class="dropdown-item py-2" href="index.php?category=language"><i class='bx bx-world me-2 text-info'></i> Góc Ngoại Ngữ</a></li>
+                        <?php if (!empty($categories)): ?>
+                            <?php foreach ($categories as $cat): ?>
+                                <li>
+                                    <a class="dropdown-item py-2" href="index.php?category=<?= htmlspecialchars($cat['id']) ?>">
+                                        <i class='bx bx-book me-2 text-primary'></i> 
+                                        <?= htmlspecialchars($cat['name']) ?>
+                                    </a>
+                                </li>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <li><span class="dropdown-item py-2 text-muted">Chưa có danh mục</span></li>
+                        <?php endif; ?>
+                        
                         <li><hr class="dropdown-divider"></li>
                         <li><a class="dropdown-item py-2 text-danger fw-bold" href="index.php">Xem tất cả</a></li>
                     </ul>
