@@ -23,15 +23,32 @@ if (isset($pdo)) {
                 <?php if(empty($users)): ?>
                     <tr><td colspan="6" class="text-center text-muted py-3">Chưa có khách hàng nào đăng ký.</td></tr>
                 <?php else: ?>
-                    <?php foreach($users as $u): ?>
+                    <?php
+                    $stt = 1; // Biến đếm STT
+                    foreach($users as $u): 
+                    ?>
                     <tr>
-                        <td>#<?= $u['id'] ?></td>
+                        <td class="fw-bold text-secondary">#<?= $stt++ ?></td>
                         <td class="fw-bold text-primary"><?= htmlspecialchars($u['username']) ?></td>
                         <td><?= htmlspecialchars($u['fullname'] ?? 'Chưa cập nhật') ?></td>
                         <td><?= htmlspecialchars($u['email'] ?? 'Chưa cập nhật') ?></td>
                         <td class="text-muted"><?= $u['created_at'] ?></td>
                         <td>
-                            <a href="modules/user/delete.php?id=<?= $u['id'] ?>" class="btn btn-sm btn-outline-danger" onclick="return confirm('Bạn có chắc chắn muốn xóa tài khoản khách hàng này?')"><i class="fa-solid fa-trash"></i> Xóa</a>
+                            <button class="btn btn-sm btn-outline-danger" onclick="deleteUser(<?= $u['id'] ?>)">
+                                <i class="fa-solid fa-trash"></i> Xóa
+                            </button>
+                            <script>
+                                function deleteUser(id) {
+                                    if(confirm('Bạn có chắc chắn muốn xóa?')) {
+                                        fetch('modules/user/delete.php?id=' + id)
+                                        .then(response => response.text())
+                                        .then(data => {
+                                            alert('Đã xóa thành công!');
+                                            location.reload(); // Chỉ load lại khi đã xóa xong
+                                        });
+                                    }
+                                }
+                            </script>
                         </td>
                     </tr>
                     <?php endforeach; ?>

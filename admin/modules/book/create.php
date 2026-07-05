@@ -35,6 +35,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sale_start = !empty($_POST['sale_start']) ? $_POST['sale_start'] : null;
     $sale_end = !empty($_POST['sale_end']) ? $_POST['sale_end'] : null;
     $sale = intval($_POST['sale'] ?? 0);
+    $stock_quantity = max(0, intval($_POST['stock_quantity'] ?? 10));
 
     // 3. Xử lý logic Upload ảnh bìa sách vào public/upload/
     // if (isset($_FILES['image']) && $_FILES['image']['error'] == 0) {
@@ -51,10 +52,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // 4. Chèn dữ liệu vào bảng books bằng cú pháp PDO chuẩn
     if (!empty($title) && !empty($author)) {
         try {
-            $sql = "INSERT INTO books (title, author, price, image, description, sale, sale_start, sale_end) 
-                    VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+            $sql = "INSERT INTO books (title, author, price, image, description, sale, sale_start, sale_end, stock_quantity) 
+                    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$title, $author, $price, $image_name, $description, $sale, $sale_start, $sale_end]);
+            $stmt->execute([$title, $author, $price, $image_name, $description, $sale, $sale_start, $sale_end, $stock_quantity]);
         } catch (Exception $e) {
             die("Lỗi Database khi thêm sách: " . $e->getMessage());
         }

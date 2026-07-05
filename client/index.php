@@ -101,12 +101,16 @@
                     <div class="card-body bg-white p-3">
                         <div class="row row-cols-2 row-cols-sm-3 row-cols-md-5 g-3">
                             <?php foreach ($flash_books as $book): ?>
+                                <?php $stock = max(0, intval($book['stock_quantity'] ?? 10)); ?>
                                 <div class="col">
                                     <a href="index.php?page=detail&id=<?php echo $book['id']; ?>" class="text-decoration-none text-dark d-block h-100">
-                                        <div class="card h-100 border-light position-relative card-hover shadow-2xs p-2">
+                                        <div class="card h-100 border-light position-relative card-hover shadow-2xs p-2" style="<?= $stock <= 0 ? 'filter: grayscale(1); opacity: 0.75;' : '' ?>">
                                             <span class="position-absolute top-0 start-0 badge bg-danger m-2">-<?php echo $book['sale'] ?? '0%'; ?></span>
+                                            <?php if ((int)($book['stock_quantity'] ?? 10) <= 0): ?>
+                                                <span class="position-absolute top-0 end-0 badge bg-dark m-2">Hết hàng</span>
+                                            <?php endif; ?>
                                             
-                                            <div class="text-center py-2">
+                                            <div class="text-center py-2 position-relative">
                                                 <?php
                                                 if (strpos($book['image'], 'http') === 0) {
                                                     $img_src = $book['image'];
@@ -119,6 +123,9 @@
                                                     class="img-fluid rounded" 
                                                     style="max-height: 160px; object-fit: contain;" 
                                                     onerror="this.src='https://placehold.co/150x200?text=Error'">
+                                                <?php if ($stock <= 0): ?>
+                                                    <div class="position-absolute top-50 start-50 translate-middle px-3 py-2 rounded-pill bg-dark text-white fw-bold small" style="transform: translate(-50%, -50%) rotate(-15deg);">ĐÃ BÁN HẾT</div>
+                                                <?php endif; ?>
                                             </div>
                                             
                                             <div class="card-body p-1 d-flex flex-column justify-content-between">
@@ -156,12 +163,16 @@
                     <?php die; else: ?>
                         <div class="row row-cols-2 row-cols-sm-3 row-cols-md-4 row-cols-lg-5 g-3">
                             <?php foreach ($filtered_books as $book): ?>
+                                <?php $stock = max(0, intval($book['stock_quantity'] ?? 10)); ?>
                                 <div class="col">
                                     <a href="index.php?page=detail&id=<?php echo $book['id']; ?>" class="text-decoration-none text-dark d-block h-100">
-                                        <div class="card h-100 card-hover border-light position-relative shadow-2xs rounded-3 p-2">
+                                        <div class="card h-100 card-hover border-light position-relative shadow-2xs rounded-3 p-2" style="<?= $stock <= 0 ? 'filter: grayscale(1); opacity: 0.75;' : '' ?>">
                                             <span class="position-absolute top-0 start-0 badge bg-danger m-2"><?php echo $book['sale'] ?? '0%'; ?></span>
+                                            <?php if ((int)($book['stock_quantity'] ?? 10) <= 0): ?>
+                                                <span class="position-absolute top-0 end-0 badge bg-dark m-2">Hết hàng</span>
+                                            <?php endif; ?>
                                             
-                                            <div class="text-center py-3">
+                                            <div class="text-center py-3 position-relative">
                                                 <?php
                                                     if (strpos($book['image'], 'http') === 0) {
                                                         $img_src = $book['image'];
@@ -174,6 +185,9 @@
                                                         class="img-fluid rounded" 
                                                         style="max-height: 160px; object-fit: contain;" 
                                                         onerror="this.src='https://placehold.co/150x200?text=Error'">
+                                                <?php if ($stock <= 0): ?>
+                                                    <div class="position-absolute top-50 start-50 translate-middle px-3 py-2 rounded-pill bg-dark text-white fw-bold small" style="transform: translate(-50%, -50%) rotate(-15deg);">ĐÃ BÁN HẾT</div>
+                                                <?php endif; ?>
                                             </div>
                                             
                                             <div class="card-body p-1 d-flex flex-column justify-content-between">
@@ -237,6 +251,10 @@
             //     exit();
             // }
             include 'view/profile.php';
+            break;
+
+        case 'my-orders':
+            include 'view/my-orders.php';
             break;
     
         case 'cart':

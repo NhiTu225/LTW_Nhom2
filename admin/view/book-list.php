@@ -30,15 +30,16 @@ if (isset($pdo)) {
                     <th>Tên sách</th>
                     <th>Tác giả</th>
                     <th>Giá bán</th>
+                    <th class="text-center">Tồn kho</th>
                     <th style="width: 160px; text-align: center;">Hành động</th>
                 </tr>
             </thead>
             <tbody>
                 <?php if (empty($books)): ?>
-                    <tr><td colspan="6" class="text-center text-muted py-4">Kho hàng trống rỗng. Hãy thêm sách mới!</td></tr>
+                    <tr><td colspan="7" class="text-center text-muted py-4">Kho hàng trống rỗng. Hãy thêm sách mới!</td></tr>
                 <?php else: ?>
                     <?php 
-                    $stt = 1; // KHAI BÁO NGAY TẠI ĐÂY, TRƯỚC KHI FOREACH BẮT ĐẦU
+                    $stt = 1;
                     foreach ($books as $b): 
                     ?>
                     <tr>
@@ -56,6 +57,12 @@ if (isset($pdo)) {
                         <td><div class="fw-bold text-dark"><?= htmlspecialchars($b['title']) ?></div></td>
                         <td class="text-muted small"><?= htmlspecialchars($b['author']) ?></td>
                         <td class="fw-semibold text-primary"><?= number_format($b['price']) ?> ₫</td>
+                        <td class="text-center">
+                            <?php $stock = (int)($b['stock_quantity'] ?? 0); ?>
+                            <span class="badge rounded-pill <?= $stock > 0 ? 'bg-success-subtle text-success' : 'bg-danger-subtle text-danger' ?> px-2 py-1">
+                                <?= $stock ?> cuốn
+                            </span>
+                        </td>
                         
                         <td>
                             <div class="d-flex justify-content-center gap-2">

@@ -17,6 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
     $category_id = (!empty($_POST['category_id']) && intval($_POST['category_id']) > 0) ? intval($_POST['category_id']) : null;
     $price = floatval($_POST['price'] ?? 0);
     $sale = intval($_POST['sale'] ?? 0); // LẤY DỮ LIỆU TỪ Ô NHẬP % GIẢM GIÁ MỚI
+    $stock_quantity = max(0, intval($_POST['stock_quantity'] ?? 10));
     $description = trim($_POST['description'] ?? '');
     $sale_start = !empty($_POST['sale_start']) ? $_POST['sale_start'] : null;
     $sale_end = !empty($_POST['sale_end']) ? $_POST['sale_end'] : null;
@@ -65,10 +66,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($pdo)) {
         try {
             // CẬP NHẬT CÂU LỆNH SQL: Thêm tác giả, giá cũ (old_price) và phần trăm giảm giá (sale)
             $sql = "UPDATE books SET title = ?, author = ?, category_id = ?, price = ?, old_price = ?, 
-                    sale = ?, sale_start = ?, sale_end = ?, description = ?, image = ? 
+                    sale = ?, sale_start = ?, sale_end = ?, description = ?, image = ?, stock_quantity = ? 
                     WHERE id = ?";
             $stmt = $pdo->prepare($sql);
-            $stmt->execute([$title, $author, $category_id, $price, $old_price, $sale, $sale_start, $sale_end, $description, $image_name, $id]);
+            $stmt->execute([$title, $author, $category_id, $price, $old_price, $sale, $sale_start, $sale_end, $description, $image_name, $stock_quantity, $id]);
 
             echo "<script>window.location.href='index.php?page=book-list';</script>";
             exit();

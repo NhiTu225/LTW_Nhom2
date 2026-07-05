@@ -35,6 +35,7 @@ CREATE TABLE `books` (
   `description` text DEFAULT NULL,
   `image` varchar(255) DEFAULT NULL,
   `category_id` int(11) DEFAULT NULL,
+  `stock_quantity` int(11) NOT NULL DEFAULT 10,
   `created_at` timestamp NOT NULL DEFAULT current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
@@ -42,10 +43,10 @@ CREATE TABLE `books` (
 -- Đang đổ dữ liệu cho bảng `books`
 --
 
-INSERT INTO `books` (`id`, `title`, `author`, `price`, `description`, `image`, `category_id`, `created_at`) VALUES
-(1, 'Dế Mèn phiêu lưu ký', 'Tô Hoài', 50000.00, NULL, NULL, 1, '2026-05-18 11:17:45'),
-(2, 'Nhà giả kim', 'Paulo Coelho', 80000.00, NULL, NULL, 1, '2026-05-18 11:17:45'),
-(3, 'Dạy con làm giàu', 'Robert Kiyosaki', 120000.00, NULL, NULL, 2, '2026-05-18 11:17:45');
+INSERT INTO `books` (`id`, `title`, `author`, `price`, `description`, `image`, `category_id`, `stock_quantity`, `created_at`) VALUES
+(1, 'Dế Mèn phiêu lưu ký', 'Tô Hoài', 50000.00, NULL, NULL, 1, 10, '2026-05-18 11:17:45'),
+(2, 'Nhà giả kim', 'Paulo Coelho', 80000.00, NULL, NULL, 1, 10, '2026-05-18 11:17:45'),
+(3, 'Dạy con làm giàu', 'Robert Kiyosaki', 120000.00, NULL, NULL, 2, 10, '2026-05-18 11:17:45');
 
 -- --------------------------------------------------------
 

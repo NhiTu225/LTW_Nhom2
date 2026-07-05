@@ -33,12 +33,17 @@ if (isset($pdo)) {
                     <?php foreach ($orders as $o): ?>
                     <tr>
                         <td class="fw-bold">#<?= $o['id'] ?></td>
-                        <td><?= htmlspecialchars($o['fullname'] ?? 'Khách vãng lai') ?></td>
-                        <td class="text-muted"><?= $o['created_at'] ?></td>
+                        <td>
+                            <?= htmlspecialchars($o['fullname'] ?? 'Khách vãng lai') ?>
+                            <div class="small text-muted">SĐT: <?= htmlspecialchars($o['phone'] ?? '') ?></div>
+                        </td>
+                        <td class="text-muted">
+                            <?= $o['created_at'] ?>
+                            <div class="small text-muted">Địa chỉ: <?= htmlspecialchars($o['address'] ?? '') ?></div>
+                        </td>
                         <td class="fw-bold text-danger"><?= number_format($o['total_amount'] ?? $o['total_price'] ?? 0) ?> đ</td>
                         <td>
                             <?php 
-                            // Đổ màu trạng thái đồng bộ với Dashboard của bạn
                             $status = $o['status'] ?? 'pending';
                             if ($status == 'pending' || $status == 'Chờ xác nhận') {
                                 echo '<span class="badge bg-warning-subtle text-warning border border-warning px-2 py-1">Chờ xác nhận</span>';
@@ -46,7 +51,7 @@ if (isset($pdo)) {
                                 echo '<span class="badge bg-primary-subtle text-primary border border-primary px-2 py-1">Đang xử lý</span>';
                             } elseif ($status == 'shipping' || $status == 'Đang giao') {
                                 echo '<span class="badge bg-info-subtle text-info border border-info px-2 py-1">Đang giao</span>';
-                            } elseif ($status == 'completed' || $status == 'Đã hoàn thành') {
+                            } elseif ($status == 'completed' || $status == 'Đã hoàn thành' || $status == 'received') {
                                 echo '<span class="badge bg-success-subtle text-success border border-success px-2 py-1">Đã hoàn thành</span>';
                             } else {
                                 echo '<span class="badge bg-danger-subtle text-danger border border-danger px-2 py-1">Đã hủy</span>';

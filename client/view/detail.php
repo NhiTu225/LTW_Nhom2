@@ -4,11 +4,15 @@ include_once __DIR__ . '/../../config/db.php';
 
 // Lấy ID từ URL
 $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+$stock = 10;
 
 // Query thông tin sách
 $stmt = $pdo->prepare("SELECT * FROM books WHERE id = :id");
 $stmt->execute([':id' => $id]);
 $book = $stmt->fetch(PDO::FETCH_ASSOC);
+if ($book) {
+    $stock = max(0, intval($book['stock_quantity'] ?? 10));
+}
 
 if (!$book) {
     echo "<div class='container my-5 text-center'><h3>Sản phẩm không tồn tại hoặc đã bị xóa!</h3><a href='index.php' class='btn btn-danger mt-3'>Quay lại trang chủ</a></div>";
@@ -18,6 +22,8 @@ if (!$book) {
 
 // 🌟 BỔ SUNG: Truy vấn lấy danh sách đánh giá của cuốn sách này từ bảng reviews
 $reviews = [];
+$avg_rating = 0;
+$rating_count = 0;
 if (isset($pdo)) {
     $stmt_rev = $pdo->prepare("SELECT r.*, u.fullname FROM reviews r 
                                JOIN users u ON r.user_id = u.id 
@@ -25,6 +31,10 @@ if (isset($pdo)) {
                                ORDER BY r.created_at DESC");
     $stmt_rev->execute([$book['id']]);
     $reviews = $stmt_rev->fetchAll(PDO::FETCH_ASSOC);
+    $rating_count = count($reviews);
+    if ($rating_count > 0) {
+        $avg_rating = round(array_sum(array_column($reviews, 'rating')) / $rating_count, 1);
+    }
 }
 ?>
 
@@ -32,10 +42,15 @@ if (isset($pdo)) {
     <div class="row bg-white p-4 rounded-3 shadow-sm g-4">
         <div class="col-md-5 text-center border-end">
             <?php 
-                // Kiểm tra xem link ảnh có phải là URL trên mạng không (có chứa http)
-                $img_src = (strpos($book['image'], 'http') === 0) ? $book['image'] : '../public/images/' . $book['image'];
+                $detail_image = !empty($book['image']) ? $book['image'] : '2.png';
+                $img_src = (strpos($detail_image, 'http') === 0) ? $detail_image : '../public/images/' . $detail_image;
                 ?>
-                <img src="<?php echo $img_src; ?>" class="img-fluid rounded shadow-sm mb-3" style="max-height: 400px; object-fit: contain;" onerror="this.src='https://placehold.co/300x400?text=GroupTwo'">
+                <div class="position-relative d-inline-block">
+                    <img src="<?php echo $img_src; ?>" class="img-fluid rounded shadow-sm mb-3" style="max-height: 400px; object-fit: contain; <?= $stock <= 0 ? 'filter: grayscale(1); opacity: 0.7;' : '' ?>" onerror="this.src='https://placehold.co/300x400?text=GroupTwo'">
+                    <?php if ($stock <= 0): ?>
+                        <div class="position-absolute top-50 start-50 translate-middle px-3 py-2 rounded-pill bg-dark text-white fw-bold small" style="transform: translate(-50%, -50%) rotate(-15deg);">ĐÃ BÁN HẾT</div>
+                    <?php endif; ?>
+                </div>
         </div>
 
         <div class="col-md-7">
@@ -51,6 +66,15 @@ if (isset($pdo)) {
                 <h3 class="text-danger fw-bold mb-1">
                     <?= number_format($book['price'] ?? 0) ?> đ
                 </h3>
+                <?php if ($stock > 0): ?>
+                    <div class="small text-success fw-semibold mb-2"><i class='bx bx-check-circle me-1'></i>Còn <?= $stock ?> cuốn trong kho</div>
+                <?php else: ?>
+                    <div class="small text-danger fw-semibold mb-2"><i class='bx bx-error-circle me-1'></i>Đã hết hàng</div>
+                <?php endif; ?>
+                <div class="small text-warning mb-2">
+                    <i class='bx bxs-star'></i> <?= $avg_rating ?> / 5
+                    <span class="text-muted">(<?= $rating_count ?> đánh giá)</span>
+                </div>
 
                 <?php if (isset($book['sale']) && $book['sale'] > 0): ?>
                     <div class="d-flex align-items-center gap-2 small text-secondary">
@@ -68,18 +92,18 @@ if (isset($pdo)) {
                 <input type="hidden" id="book_id" name="book_id" value="<?php echo $book['id']; ?>">
                 <div class="d-flex align-items-center gap-3 mb-4">
                     <span class="fw-medium text-secondary">Số lượng:</span>
-                    <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="10" style="width: 80px; border-radius: 6px;">
+                    <input type="number" id="quantity" name="quantity" class="form-control text-center" value="1" min="1" max="<?= $stock > 0 ? $stock : 1 ?>" style="width: 80px; border-radius: 6px;">
                 </div>
 
                 <div class="row g-2">
                     <div class="col-sm-6">
-                        <button type="button" id="btn-add-to-cart" class="btn btn-outline-danger w-100 py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2" style="border-color: #cd1818; color: #cd1818;">
-                            <i class='bx bx-cart-add fs-5'></i> Thêm vào giỏ hàng
+                        <button type="button" id="btn-add-to-cart" class="btn btn-outline-danger w-100 py-2.5 fw-bold d-flex align-items-center justify-content-center gap-2" style="border-color: #cd1818; color: #cd1818;" <?= $stock <= 0 ? 'disabled' : '' ?>>
+                            <i class='bx bx-cart-add fs-5'></i> <?= $stock > 0 ? 'Thêm vào giỏ hàng' : 'Hết hàng' ?>
                         </button>
                     </div>
                     <div class="col-sm-6">
-                        <button type="submit" name="buy_now" class="btn text-white w-100 py-2.5 fw-bold" style="background-color: #cd1818;">
-                            Mua ngay
+                        <button type="submit" name="buy_now" class="btn text-white w-100 py-2.5 fw-bold" style="background-color: #cd1818;" <?= $stock <= 0 ? 'disabled' : '' ?>>
+                            <?= $stock > 0 ? 'Mua ngay' : 'Hết hàng' ?>
                         </button>
                     </div>
                 </div>
@@ -112,7 +136,7 @@ if (isset($pdo)) {
 
     <div class="row bg-white p-4 rounded-3 shadow-sm g-4 mt-4">
         <div class="col-12">
-            <h4 class="fw-bold text-dark mb-4"><i class="bx bx-comment-detail text-danger me-2"></i>Khách hàng nhận xét</h4>
+            <h4 class="fw-bold text-dark mb-4"><i class="bx bx-comment-detail text-danger me-2"></i>Đánh Giá Sản Phẩm</h4>
         </div>
         
         <div class="col-lg-7">
@@ -146,7 +170,7 @@ if (isset($pdo)) {
                 <h5 class="fw-bold text-dark mb-3 fs-6">Viết nhận xét của bạn</h5>
                 
                 <?php if (isset($_SESSION['user'])): ?>
-                    <form action="../api/review-action.php" method="POST">
+                    <form action="../api/review_action.php" method="POST">
                         <input type="hidden" name="book_id" value="<?= $book['id'] ?>">
                         
                         <div class="mb-3">
@@ -220,7 +244,7 @@ document.getElementById('btn-add-to-cart').addEventListener('click', function(e)
 
         // Gửi dữ liệu bằng API XMLHttpRequest (AJAX thuần không cần thư viện)
         const xhr = new XMLHttpRequest();
-        xhr.open('POST', 'api/cart-action.php?action=add&id=' + bookId, true);
+        xhr.open('POST', 'api/cart_action.php?action=add&id=' + bookId, true);
         xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
         
         xhr.onload = function() {

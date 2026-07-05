@@ -98,9 +98,9 @@
 </head>
 <body >
 
-    <div class="text-white text-center py-2 fw-bold small" style="background-color: #0047ab;">
+    <!-- <div class="text-white text-center py-2 fw-bold small" style="background-color: #0047ab;">
         🔥 ĐÓN HÈ RỰC RỠ - SĂN SALE NGẬP TRÀN GIẢM GIÁ LÊN ĐẾN 50%! 🔥
-    </div>
+    </div> -->
 
     <nav class="navbar navbar-expand-lg navbar-light sticky-top bg-white shadow-sm py-2 py-md-3">
         <div class="container d-flex flex-wrap align-items-center justify-content-between gap-2 gap-md-4">

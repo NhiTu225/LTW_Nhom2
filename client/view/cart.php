@@ -25,7 +25,7 @@ $total_money = 0;
             <div class="col-lg-8">
                 <div class="card border-0 rounded-3 shadow-sm p-3 bg-white">
                     <!-- Form gửi lên view/cart-action.php?action=update để cập nhật số lượng -->
-                    <form action="../api/cart-action.php?action=update" method="POST">
+                    <form action="../api/cart_action.php?action=update" method="POST">
                         <div class="table-responsive">
                             <table class="table align-middle mb-0">
                                 <thead class="table-light">
@@ -45,7 +45,11 @@ $total_money = 0;
                                         <tr>
                                             <td>
                                                 <div class="d-flex align-items-center gap-3">
-                                                    <img src="../public/images/<?= $item['image'] ?>" class="img-fluid rounded" style="width: 60px; height: 80px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=Book'">
+                                                    <?php
+                                                    $cart_item_image = !empty($item['image']) ? $item['image'] : '2.png';
+                                                    $cart_item_image_src = (strpos($cart_item_image, 'http') === 0) ? $cart_item_image : '../public/images/' . $cart_item_image;
+                                                    ?>
+                                                    <img src="<?= $cart_item_image_src ?>" class="img-fluid rounded" style="width: 60px; height: 80px; object-fit: contain;" onerror="this.src='https://placehold.co/150x200?text=Book'">
                                                     <div class="text-truncate-2 small fw-semibold text-dark" style="max-width: 200px;">
                                                         <?= htmlspecialchars($item['title']) ?>
                                                     </div>
@@ -62,10 +66,17 @@ $total_money = 0;
                                                 <?= number_format($subtotal) ?> đ
                                             </td>
                                             <td class="text-center">
-                                                <!-- Nút xóa sản phẩm gọi trực tiếp hành động delete -->
-                                                <a href="view/cart-action.php?action=delete&id=<?= $item['id'] ?>" class="btn btn-sm btn-outline-danger">Xóa
-                                                    <i class='bx bx-trash'></i>
-                                                </a>
+                                                <div class="d-flex flex-column gap-2">
+                                                    <form action="api/checkout-action.php" method="POST" class="d-inline">
+                                                        <input type="hidden" name="action" value="buy">
+                                                        <input type="hidden" name="book_id" value="<?= intval($id) ?>">
+                                                        <input type="hidden" name="quantity" value="<?= intval($item['quantity']) ?>">
+                                                        <button type="submit" class="btn btn-sm btn-outline-danger w-100">Thanh toán</button>
+                                                    </form>
+                                                    <a href="api/cart_action.php?action=delete&id=<?= intval($id) ?>" class="btn btn-sm btn-outline-secondary">Xóa
+                                                        <i class='bx bx-trash'></i>
+                                                    </a>
+                                                </div>
                                             </td>
                                         </tr>
                                     <?php endforeach; ?>

@@ -1,7 +1,7 @@
 <?php
 // Khởi tạo mảng số liệu an toàn đề phòng DB trống
 $thong_ke = ['doanh_thu' => 0, 'don_hang' => 0, 'sach' => 0, 'khach_hang' => 0];
-$trang_thai_don = ['pending' => 0, 'processing' => 0, 'shipping' => 0, 'completed' => 0, 'canceled' => 0];
+$trang_thai_don = ['pending' => 0, 'processing' => 0, 'shipping' => 0, 'completed' => 0, 'cancelled' => 0, 'canceled' => 0];
 $don_hang_moi = [];
 $top_sach = [];
 
@@ -10,8 +10,10 @@ $data_bieu_do = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
 
 if (isset($pdo)) {
     try {
-        // 🌟 1. ĐÃ FIX: Đổi SUM(total) thành SUM(total_amount) khớp bảng orders
-        $thong_ke['doanh_thu'] = $pdo->query("SELECT SUM(total_amount) FROM orders WHERE status = 'completed'")->fetchColumn() ?? 0;
+        $completed_status_sql = "LOWER(TRIM(status)) IN ('completed','received','đã hoàn thành','đã nhận hàng','da hoan thanh','da nhan hang')";
+
+        // 🌟 1. Doanh thu dashboard tính theo các đơn đã hoàn thành/đã nhận hàng để thống nhất với Top sách bán chạy
+        $thong_ke['doanh_thu'] = $pdo->query("SELECT COALESCE(SUM(total_amount), 0) FROM orders WHERE " . $completed_status_sql)->fetchColumn() ?? 0;
         $thong_ke['don_hang'] = $pdo->query("SELECT COUNT(*) FROM orders")->fetchColumn() ?? 0;
         $thong_ke['sach'] = $pdo->query("SELECT COUNT(*) FROM books")->fetchColumn() ?? 0;
         $thong_ke['khach_hang'] = $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'user' OR role = 'client'")->fetchColumn() ?? 0;
@@ -19,19 +21,31 @@ if (isset($pdo)) {
         // 2. Đếm số lượng đơn theo từng trạng thái thực tế
         $stmt = $pdo->query("SELECT status, COUNT(*) AS so_luong FROM orders GROUP BY status");
         while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
-            if (array_key_exists($row['status'], $trang_thai_don)) {
-                $trang_thai_don[$row['status']] = $row['so_luong'];
+            $raw_status = strtolower(trim((string)($row['status'] ?? '')));
+            $normalized_status = $raw_status;
+
+            if ($raw_status === 'cancelled' || $raw_status === 'canceled' || $raw_status === 'đã hủy' || $raw_status === 'da huy' || $raw_status === 'huy') {
+                $normalized_status = 'cancelled';
+            } elseif (in_array($raw_status, ['pending', 'processing', 'shipping', 'completed'], true)) {
+                $normalized_status = $raw_status;
+            }
+
+            if (array_key_exists($normalized_status, $trang_thai_don)) {
+                $trang_thai_don[$normalized_status] = (int)$row['so_luong'];
+                if ($normalized_status === 'cancelled') {
+                    $trang_thai_don['canceled'] = (int)$row['so_luong'];
+                }
             }
         }
 
-        // 🌟 3. ĐÃ FIX: o.total_price thành o.total_amount và lấy fullname từ bảng users
+        // 3. o.total_price thành o.total_amount và lấy fullname từ bảng users
         $don_hang_moi = $pdo->query("SELECT o.*, u.fullname AS customer_name FROM orders o LEFT JOIN users u ON o.user_id = u.id ORDER BY o.id DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 🌟 4. ĐÃ FIX: Đổi tên bảng từ order_details thành order_items cho khớp DB của em
-        $top_sach = $pdo->query("SELECT b.title, b.author, SUM(od.quantity) as da_ban, SUM(od.quantity * od.price) as doanh_thu FROM order_items od JOIN books b ON od.book_id = b.id GROUP BY od.book_id ORDER BY da_ban DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
+        // 4. Doanh thu Top sách bán chạy cũng chỉ tính theo các đơn đã hoàn thành/đã nhận hàng
+        $top_sach = $pdo->query("SELECT b.title, b.author, SUM(od.quantity) as da_ban, COALESCE(SUM(od.quantity * od.price), 0) as doanh_thu FROM order_items od JOIN books b ON od.book_id = b.id JOIN orders o ON o.id = od.order_id WHERE " . $completed_status_sql . " GROUP BY od.book_id ORDER BY da_ban DESC LIMIT 5")->fetchAll(PDO::FETCH_ASSOC);
 
-        // 🌟 5. ĐÃ FIX: Đổi SUM(total) thành SUM(total_amount) để vẽ biểu đồ động 12 tháng
-        $sql_chart = "SELECT MONTH(created_at) AS thang, SUM(total_amount) AS tong FROM orders WHERE status = 'completed' GROUP BY MONTH(created_at)";
+        // 5. Biểu đồ doanh thu cũng dùng cùng tiêu chí trạng thái đã hoàn thành/đã nhận hàng
+        $sql_chart = "SELECT MONTH(created_at) AS thang, SUM(total_amount) AS tong FROM orders WHERE " . $completed_status_sql . " GROUP BY MONTH(created_at)";
         $stmt_chart = $pdo->query($sql_chart);
         while ($row_chart = $stmt_chart->fetch(PDO::FETCH_ASSOC)) {
             $m = (int)$row_chart['thang'];
@@ -117,7 +131,7 @@ if (isset($pdo)) {
                 </div>
                 <div class="list-group-item d-flex justify-content-between align-items-center px-0 py-2 border-0">
                     <span><i class="fa-solid fa-circle text-danger me-2" style="font-size:0.6rem;"></i>Đã hủy</span>
-                    <span class="badge bg-danger-subtle text-danger rounded-pill"><?= $trang_thai_don['canceled'] ?></span>
+                    <span class="badge bg-danger-subtle text-danger rounded-pill"><?= $trang_thai_don['cancelled'] ?></span>
                 </div>
             </div>
         </div>

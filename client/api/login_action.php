@@ -30,6 +30,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'email'    => $user['email'],
                     'role'     => $user['role'] // 'admin' hoặc 'user'
                 ];
+                $_SESSION['role'] = $user['role'];
 
                 // Kiểm tra vai trò để điều hướng (Routing)
                 if ($_SESSION['user']['role'] === 'admin') {

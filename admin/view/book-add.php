@@ -46,6 +46,11 @@
                         <label for="sale" class="form-label fw-semibold small text-dark">Giảm giá (%)</label>
                         <input type="number" class="form-control rounded-2" id="sale" name="sale" value="0" min="0" max="100" placeholder="Ví dụ: 20">
                     </div>
+
+                    <div class="col-md-3">
+                        <label for="stock_quantity" class="form-label fw-semibold small text-dark">Tồn kho</label>
+                        <input type="number" class="form-control rounded-2" id="stock_quantity" name="stock_quantity" value="10" min="0" required>
+                    </div>
                     
                     <div class="col-md-6">
                         <label for="sale_start" class="form-label fw-semibold small text-dark">Bắt đầu giảm giá</label>

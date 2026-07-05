@@ -21,8 +21,26 @@ if ($action === 'add' && $id > 0) {
     $book = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($book) {
+        unset($_SESSION['checkout_mode'], $_SESSION['checkout_items']);
+
+        $stock = max(0, intval($book['stock_quantity'] ?? 10));
+        if ($stock <= 0) {
+            echo 'out_of_stock';
+            exit();
+        }
+
         if (!isset($_SESSION['cart'])) {
             $_SESSION['cart'] = [];
+        }
+
+        $existing_quantity = isset($_SESSION['cart'][$id]['quantity']) ? intval($_SESSION['cart'][$id]['quantity']) : 0;
+        if ($existing_quantity + $quantity > $stock) {
+            $quantity = max(0, $stock - $existing_quantity);
+        }
+
+        if ($quantity <= 0) {
+            echo 'out_of_stock';
+            exit();
         }
 
         if (isset($_SESSION['cart'][$id])) {
@@ -47,6 +65,8 @@ if ($action === 'add' && $id > 0) {
 // --- CẬP NHẬT SỐ LƯỢNG GIỎ HÀNG  ---
 if ($action === 'update') {
     $quantities = $_POST['quantities'] ?? [];
+    unset($_SESSION['checkout_mode'], $_SESSION['checkout_items']);
+
     if (!empty($quantities) && isset($_SESSION['cart'])) {
         foreach ($quantities as $book_id => $qty) {
             $qty = intval($qty);
@@ -64,6 +84,8 @@ if ($action === 'update') {
 
 // --- XÓA 1 SẢN PHẨM KHỎI GIỎ ---
 if ($action === 'delete' && $id > 0) {
+    unset($_SESSION['checkout_mode'], $_SESSION['checkout_items']);
+
     if (isset($_SESSION['cart'][$id])) {
         unset($_SESSION['cart'][$id]);
     }
@@ -75,6 +97,7 @@ if ($action === 'delete' && $id > 0) {
 // --- XÓA SẠCH SAU KHI ĐẶT HÀNG THÀNH CÔNG ---
 if ($action === 'clear_success') {
     unset($_SESSION['cart']);
+    unset($_SESSION['checkout_mode'], $_SESSION['checkout_items']);
     header("Location: ../index.php");
     exit();
 }

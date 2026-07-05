@@ -1,0 +1,68 @@
+erDiagram
+    USERS ||--o{ ORDERS : places
+    USERS ||--o{ REVIEWS : writes
+    CATEGORIES ||--o{ BOOKS : contains
+    BOOKS ||--o{ ORDER_ITEMS : appears_in
+    ORDERS ||--o{ ORDER_ITEMS : includes
+    BOOKS ||--o{ REVIEWS : receives
+
+    USERS {
+        int id PK
+        varchar username
+        varchar password
+        varchar fullname
+        varchar email
+        enum role
+        timestamp created_at
+    }
+
+    CATEGORIES {
+        int id PK
+        varchar name
+        text description
+        timestamp created_at
+    }
+
+    BOOKS {
+        int id PK
+        varchar title
+        varchar author
+        decimal price
+        text description
+        varchar image
+        int category_id FK
+        int stock_quantity
+        timestamp created_at
+    }
+
+    ORDERS {
+        int id PK
+        int user_id FK
+        varchar fullname
+        text address
+        varchar phone
+        decimal total_amount
+        varchar status
+        timestamp created_at
+    }
+
+    ORDER_ITEMS {
+        int id PK
+        int order_id FK
+        int book_id FK
+        int quantity
+        decimal price
+    }
+
+    REVIEWS {
+        int id PK
+        int book_id FK
+        int user_id FK
+        int rating
+        text comment
+        timestamp created_at
+    }
+
+%% Ghi chú:
+%% - status trong ORDERS có thể là pending, processing, shipping, completed, received, cancelled
+%% - stock_quantity dùng để quản lý tồn kho khi khách đặt hàng
