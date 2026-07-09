@@ -1,2 +1,3 @@
-# LTW_Nhom2 - 
-C:\xampp\php\php.exe -S localhost:8000
+### run and config XAMPP
+# Admin UI 
+# Client UI
